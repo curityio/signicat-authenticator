@@ -32,6 +32,7 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     : AuthenticatorRequestHandler<RequestModel>
 {
     val userPreferenceManager = config.userPreferenceManager
+    val exceptionFactory = config.exceptionFactory
     
     private object ViewDataKeys
     {
@@ -58,6 +59,6 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     
     override fun post(requestModel: RequestModel?, response: Response?): Optional<AuthenticationResult>
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        throw exceptionFactory.methodNotAllowed()
     }
 }

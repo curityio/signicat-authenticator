@@ -26,6 +26,8 @@ import java.util.Optional
 class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<CallbackRequestModel>
 {
+    val exceptionFactory = config.exceptionFactory
+    
     override fun get(requestModel: CallbackRequestModel?, response: Response?): Optional<AuthenticationResult>
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -33,11 +35,11 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     
     override fun preProcess(request: Request?, response: Response?): CallbackRequestModel
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return CallbackRequestModel(request)
     }
     
     override fun post(requestModel: CallbackRequestModel?, response: Response?): Optional<AuthenticationResult>
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        throw exceptionFactory.methodNotAllowed()
     }
 }
