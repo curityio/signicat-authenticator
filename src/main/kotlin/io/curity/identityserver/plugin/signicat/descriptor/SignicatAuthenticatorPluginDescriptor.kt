@@ -7,10 +7,10 @@ import se.curity.identityserver.sdk.plugin.descriptor.AuthenticatorPluginDescrip
 
 class SignicatAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<SignicatAuthenticatorPluginConfig>
 {
-    override fun getAuthenticationRequestHandlerTypes(): MutableMap<String, Class<out AuthenticatorRequestHandler<*>>> =
+    override fun getAuthenticationRequestHandlerTypes(): Map<String, Class<out AuthenticatorRequestHandler<*>>> =
             mapOf("index" to SignicatAuthenticatorRequestHandler::class.java)
     
-    override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> = SignicatAuthenticatorPluginConfig::class.java;
+    override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> = SignicatAuthenticatorPluginConfig::class.java
     
     override fun getPluginImplementationType(): String = "signicat-authenticator"
 }
