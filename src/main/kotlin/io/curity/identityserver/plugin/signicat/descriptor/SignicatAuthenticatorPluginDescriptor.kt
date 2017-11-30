@@ -28,7 +28,8 @@ class SignicatAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<Sign
             mapOf("index" to SignicatAuthenticatorRequestHandler::class.java,
                     "callback" to SignicatCallbackRequestHandler::class.java)
     
-    override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> = SignicatAuthenticatorPluginConfig::class.java
+    override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> =
+            SignicatAuthenticatorPluginConfig::class.java
     
     override fun getPluginImplementationType(): String = "signicat-authenticator"
 }
