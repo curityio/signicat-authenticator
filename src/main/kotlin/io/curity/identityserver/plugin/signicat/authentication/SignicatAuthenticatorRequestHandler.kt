@@ -24,7 +24,7 @@ import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import se.curity.identityserver.sdk.web.Response.ResponseModelScope.NOT_FAILURE
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
-import java.util.*
+import java.util.Optional
 import java.util.Collections.emptyMap
 import java.util.Collections.singletonMap
 
@@ -32,7 +32,6 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     : AuthenticatorRequestHandler<RequestModel>
 {
     val userPreferenceManager = config.userPreferenceManager
-    val exceptionFactory = config.exceptionFactory
     
     private object ViewDataKeys
     {
@@ -52,13 +51,15 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
         return RequestModel(request)
     }
     
-    override fun get(requestModel: RequestModel?, response: Response?): Optional<AuthenticationResult>
+    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
     
-    override fun post(requestModel: RequestModel?, response: Response?): Optional<AuthenticationResult>
+    override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        throw exceptionFactory.methodNotAllowed()
+        // TODO: Start signing process or return
+        
+        return Optional.empty()
     }
 }
