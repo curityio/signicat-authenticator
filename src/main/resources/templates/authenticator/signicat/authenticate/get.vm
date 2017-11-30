@@ -13,3 +13,30 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
+#if ($_postBack.get("personalnumber"))
+## This is a post back because the personal number wasn't valid. Use that rather than the username variable
+## (which came from the username cookie or isn't set).
+
+    #set ($_username = $_postBack.get("personalnumber"))
+#end
+
+#define($_body)
+<div class="clearfix"></div>
+<div id="bankid-form" class="hidden">
+    <form method="post">
+        <div class="alert alert-danger hidden" id="loginmessage">
+            #message("signicat.validation.error.personal-number-invalid")
+        </div>
+        <label id="lblPersonalnumber">#message("signicat.view.personal-number")</label>
+        <input type="text" name="personalnumber" id="personalnumber" class="block full-width mb1 field-light"
+               autofocus
+               value="$!_username" placeholder="#message("signicat.view.personal-number-placeholder")"
+               maxlength="12">
+        <button type="submit" class="button button-fullwidth button-primary">#message(
+            "signicat.view.challenge")</button>
+    </form>
+</div>
+#end
+
+#parse("layouts/default")

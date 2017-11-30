@@ -13,3 +13,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
+meta.title=Login
+page.title=Login
+
+signicat.view.personal-number=Personal number
+signicat.view.personal-number-placeholder=yyyymmddnnnn
+signicat.view.challenge=Login
+
+signicat.validation.error.personal-number-invalid=The personal number is invalid
