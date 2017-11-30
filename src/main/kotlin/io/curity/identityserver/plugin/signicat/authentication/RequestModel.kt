@@ -1,3 +1,5 @@
 package io.curity.identityserver.plugin.signicat.authentication
 
-class RequestModel
+import se.curity.identityserver.sdk.web.Request
+
+class RequestModel(request: Request)
