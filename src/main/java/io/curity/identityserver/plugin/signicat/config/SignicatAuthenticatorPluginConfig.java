@@ -19,7 +19,10 @@ package io.curity.identityserver.plugin.signicat.config;
 import se.curity.identityserver.sdk.config.Configuration;
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum;
 import se.curity.identityserver.sdk.service.ExceptionFactory;
+import se.curity.identityserver.sdk.service.HttpClient;
 import se.curity.identityserver.sdk.service.UserPreferenceManager;
+
+import java.net.URL;
 
 public interface SignicatAuthenticatorPluginConfig extends Configuration
 {
@@ -29,4 +32,10 @@ public interface SignicatAuthenticatorPluginConfig extends Configuration
 
     @DefaultEnum("sweden")
     Country getCountry();
+
+    String getSigningServiceName();
+
+    URL getSignicatAuthenticationUrl();
+
+    HttpClient getSignicatHttpClient();
 }
