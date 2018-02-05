@@ -38,3 +38,8 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     
     val httpClient: HttpClient
 }
+
+enum class Country
+{
+    sweden, denmark, finland, norway
+}
