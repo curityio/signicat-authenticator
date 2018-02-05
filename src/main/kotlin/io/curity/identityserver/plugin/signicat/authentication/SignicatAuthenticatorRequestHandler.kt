@@ -28,6 +28,8 @@ import java.util.Optional
 import java.util.Collections.emptyMap
 import java.util.Collections.singletonMap
 
+class RequestModel(request: Request)
+
 class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel>
 {
@@ -55,7 +57,6 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
-    
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
         // TODO: Start signing process or return

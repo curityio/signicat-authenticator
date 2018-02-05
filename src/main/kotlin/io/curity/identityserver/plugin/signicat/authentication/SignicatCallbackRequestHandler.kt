@@ -23,6 +23,8 @@ import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import java.util.Optional
 
+class CallbackRequestModel(request: Request?)
+
 class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<CallbackRequestModel>
 {
@@ -37,7 +39,6 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     {
         return CallbackRequestModel(request)
     }
-    
     override fun post(requestModel: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
         throw exceptionFactory.methodNotAllowed()
