@@ -16,13 +16,14 @@
 
 package io.curity.identityserver.plugin.signicat.config
 
+import se.curity.identityserver.sdk.config.Configuration
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum
 import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.HttpClient
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import java.net.URL
 
-interface SignicatAuthenticatorPluginConfig
+interface SignicatAuthenticatorPluginConfig : Configuration
 {
     val userPreferenceManager: UserPreferenceManager
     

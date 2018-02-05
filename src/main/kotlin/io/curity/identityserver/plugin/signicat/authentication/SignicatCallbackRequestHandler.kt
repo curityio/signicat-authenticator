@@ -17,7 +17,6 @@
 package io.curity.identityserver.plugin.signicat.authentication
 
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
-import se.curity.identityserver.sdk.attribute.Attributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.web.Request
@@ -31,9 +30,6 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     
     override fun get(requestModel: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
-        val attributes = Attributes.empty()
-        val x = attributes.get
-        
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
     
