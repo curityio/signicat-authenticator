@@ -55,7 +55,7 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Optional.empty()
     }
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
