@@ -75,7 +75,6 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
             "given-name",
             "givenname",
             "hetu",
-            "ip",
             "lastname",
             "middlename",
             "monetary-limit-amount",
