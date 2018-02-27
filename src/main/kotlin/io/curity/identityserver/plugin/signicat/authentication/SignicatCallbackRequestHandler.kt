@@ -99,6 +99,17 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
             "unique-id"
     )
     
+    init
+    {
+        synchronized(this)
+        {
+            if (!isProd)
+            {
+                SamlFacade.goIntoTestMode()
+            }
+        }
+    }
+    
     companion object
     {
         private const val ASSERTING_PARTY_DN = "asserting.party.certificate.subject.dn"
