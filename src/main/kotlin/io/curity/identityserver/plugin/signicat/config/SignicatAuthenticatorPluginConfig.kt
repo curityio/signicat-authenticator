@@ -17,11 +17,12 @@
 package io.curity.identityserver.plugin.signicat.config
 
 import se.curity.identityserver.sdk.config.Configuration
+import se.curity.identityserver.sdk.config.OneOf
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum
+import se.curity.identityserver.sdk.config.annotation.DefaultOption
 import se.curity.identityserver.sdk.config.annotation.DefaultString
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
-import se.curity.identityserver.sdk.service.HttpClient
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
 import java.util.Optional
@@ -41,8 +42,15 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val serviceName: String
     
     @get:Description("The environment to connect to")
-    @get:DefaultEnum("PRE_PRODUCTION")
     val environment: Environment
+    
+    interface Environment : OneOf
+    {
+        @get:DefaultOption
+        val standardEnvironment : Optional<PredefinedEnvironment>
+        
+        val customEnvironment : Optional<String>
+    }
     
     @get:Description("The name of the graphics profile that should be used at Signicat")
     val graphicsProfile: Optional<String>
@@ -50,7 +58,7 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val authenticationInformationProvider : AuthenticatorInformationProvider
 }
 
-enum class Environment
+enum class PredefinedEnvironment
 {
     @Description("Non-production environment for testing and verification")
     PRE_PRODUCTION,

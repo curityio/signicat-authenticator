@@ -17,7 +17,7 @@
 package io.curity.identityserver.plugin.signicat.authentication
 
 import com.signicat.services.client.saml.SamlFacade
-import io.curity.identityserver.plugin.signicat.config.Environment
+import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
 import org.hibernate.validator.constraints.NotBlank
 import org.slf4j.Logger
@@ -49,7 +49,8 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
 {
     private val exceptionFactory = config.exceptionFactory
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
-    private val isProd = config.environment == Environment.PRODUCTION
+    private val isProd = config.environment.customEnvironment.isPresent ||
+            config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
     private val allSubjectAttributeNames = setOf(
             "age",
             "age-class",

@@ -17,13 +17,14 @@
 package io.curity.identityserver.plugin.signicat.authentication
 
 import io.curity.identityserver.plugin.signicat.config.Country
-import io.curity.identityserver.plugin.signicat.config.Environment
+import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
 import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticatorPluginDescriptor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
+import se.curity.identityserver.sdk.errors.ErrorCode
 import se.curity.identityserver.sdk.http.RedirectStatusCode
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
@@ -73,9 +74,18 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
             Country.FINLAND -> "tupas"
             Country.NORWAY -> "nbid"
         }
-        val env = when (environment) {
-            Environment.PRE_PRODUCTION -> "preprod"
-            Environment.PRODUCTION -> "id"
+        val env = environment.customEnvironment.orElseGet {
+            environment.standardEnvironment.map { it ->
+                when (it)
+                {
+                    PredefinedEnvironment.PRE_PRODUCTION -> "preprod"
+                    PredefinedEnvironment.PRODUCTION     -> "id"
+                    // This and the other exceptional case below are guaranteed by the data model to never happen, but
+                    // this fact isn't know in the type system. So, these cases are handled to avoid bogus warnings,
+                    // but they will not occur.
+                    null -> throw exceptionFactory.internalServerException(ErrorCode.CONFIGURATION_ERROR)
+                }
+            }.orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.CONFIGURATION_ERROR) }
         }
         var id = "$method:"
         
