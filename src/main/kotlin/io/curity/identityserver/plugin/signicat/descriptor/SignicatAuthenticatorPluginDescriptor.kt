@@ -24,9 +24,17 @@ import se.curity.identityserver.sdk.plugin.descriptor.AuthenticatorPluginDescrip
 
 class SignicatAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<SignicatAuthenticatorPluginConfig>
 {
-    override fun getAuthenticationRequestHandlerTypes(): Map<String, Class<out AuthenticatorRequestHandler<*>>> =
-            mapOf("index" to SignicatAuthenticatorRequestHandler::class.java,
-                    "callback" to SignicatCallbackRequestHandler::class.java)
+    companion object
+    {
+        const val CALLBACK = "callback"
+    }
+    
+    override fun getAuthenticationRequestHandlerTypes(): Map<String, Class<out AuthenticatorRequestHandler<*>>>
+    {
+        return mapOf(
+                "index" to SignicatAuthenticatorRequestHandler::class.java,
+                CALLBACK to SignicatCallbackRequestHandler::class.java)
+    }
     
     override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> =
             SignicatAuthenticatorPluginConfig::class.java

@@ -16,51 +16,92 @@
 
 package io.curity.identityserver.plugin.signicat.authentication
 
+import io.curity.identityserver.plugin.signicat.config.Country
+import io.curity.identityserver.plugin.signicat.config.Environment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
+import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticatorPluginDescriptor
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
-import se.curity.identityserver.sdk.http.HttpStatus
+import se.curity.identityserver.sdk.http.RedirectStatusCode
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
-import se.curity.identityserver.sdk.web.Response.ResponseModelScope.NOT_FAILURE
-import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
+import java.net.URL
+import java.util.IllformedLocaleException
+import java.util.Locale
 import java.util.Optional
-import java.util.Collections.emptyMap
-import java.util.Collections.singletonMap
 
 class RequestModel(request: Request)
 
 class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<RequestModel>
 {
-    val userPreferenceManager = config.userPreferenceManager
+    private val logger: Logger = LoggerFactory.getLogger(SignicatAuthenticatorRequestHandler::class.java)
+    private val exceptionFactory = config.exceptionFactory
+    private val environment = config.environment
+    private val service = config.serviceName
+    private val profile = config.graphicsProfile
+    private val country = config.country
+    private val authenticationInformationProvider = config.authenticationInformationProvider
+    private val preferredLanguage = config.userPreferencesManager.locales
     
-    private object ViewDataKeys
-    {
-        internal val USERNAME = "_username"
-    }
-    
-    override fun preProcess(request: Request, response: Response): RequestModel
-    {
-        // set the template and model for responses on the NOT_FAILURE scope
-        response.setResponseModel(templateResponseModel(
-                singletonMap<String, Any>(ViewDataKeys.USERNAME, userPreferenceManager.username),
-                "authenticate/get"), NOT_FAILURE)
-    
-        // on request validation failure, we should use the same template as for NOT_FAILURE
-        response.setResponseModel(templateResponseModel(emptyMap(), "authenticate/get"), HttpStatus.BAD_REQUEST)
-    
-        return RequestModel(request)
-    }
+    override fun preProcess(request: Request, response: Response): RequestModel = RequestModel(request)
     
     override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        return Optional.empty()
+        return handle(requestModel, response)
     }
     override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        // TODO: Start signing process or return
+        // Strange but fine if the client wants to do a post to start the flow
         
-        return Optional.empty()
+        return handle(requestModel, response)
+    }
+    
+    private fun handle(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
+    {
+        val authUrl = authenticationInformationProvider.fullyQualifiedAuthenticationUri
+        val target = URL(authUrl.toURL(), "${authUrl.path}/${SignicatAuthenticatorPluginDescriptor.CALLBACK}")
+        
+        logger.debug("Redirecting to Signicat with the callback URL of {}", target)
+        
+        val method = when (country) {
+            Country.SWEDEN -> "sbid"
+            Country.DENMARK -> "nemid"
+            Country.ESTONIA -> "esteid"
+            Country.FINLAND -> "tupas"
+            Country.NORWAY -> "nbid"
+        }
+        val env = when (environment) {
+            Environment.PRE_PRODUCTION -> "preprod"
+            Environment.PRODUCTION -> "id"
+        }
+        var id = "$method:"
+        
+        profile.ifPresent { id += it }
+        
+        if (preferredLanguage != null)
+        {
+            val bcp47languageTag = preferredLanguage.split(' ', limit = 1)[0] // Use only first
+            
+            try
+            {
+                val lang = Locale.forLanguageTag(bcp47languageTag).language.toLowerCase()
+                
+                id += ":$lang"
+            }
+            catch (_ : IllformedLocaleException)
+            {
+                logger.debug("The prefered language '$preferredLanguage' could not be parsed, so it will not be " +
+                        "sent to Signicat")
+            }
+        }
+        
+        val location = "https://$env.signicat.com/std/method/$service?id=$id&target=$target"
+        
+        // Use a 303 in case this a POST request, so that the user agent is guaranteed (by compliance with HTTP) to
+        // strip the body posted here before following the redirect.
+        throw exceptionFactory.redirectException(location, RedirectStatusCode.SEE_OTHER)
     }
 }
