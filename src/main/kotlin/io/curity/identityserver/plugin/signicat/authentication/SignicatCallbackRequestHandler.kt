@@ -119,8 +119,6 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     
     override fun post(requestModel: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
-        logger.debug("SAML response from Signicat: {}", requestModel.samlResponse)
-        
         val configuration = Properties()
         
         if (isProd)
@@ -129,6 +127,8 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         }
         else
         {
+            logger.trace("SAML response from Signicat: {}", requestModel.samlResponse)
+            
             configuration.setProperty(ASSERTING_PARTY_DN, NON_PROD_DN)
         }
         
