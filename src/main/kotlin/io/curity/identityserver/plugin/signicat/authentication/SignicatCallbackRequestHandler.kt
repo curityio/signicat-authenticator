@@ -23,7 +23,8 @@ import org.hibernate.validator.constraints.NotBlank
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.curity.identityserver.sdk.attribute.Attribute
-import se.curity.identityserver.sdk.attribute.AttributeContainer
+import se.curity.identityserver.sdk.attribute.AttributeName
+import se.curity.identityserver.sdk.attribute.AttributeValue
 import se.curity.identityserver.sdk.attribute.Attributes
 import se.curity.identityserver.sdk.attribute.AuthenticationAttributes
 import se.curity.identityserver.sdk.attribute.ContextAttributes
@@ -49,6 +50,55 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val exceptionFactory = config.exceptionFactory
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment == Environment.PRODUCTION
+    private val allSubjectAttributeNames = setOf(
+            "age",
+            "age-class",
+            "bank.id",
+            "bankid-no",
+            "bankid-se",
+            "buypass-id",
+            "cn",
+            "customer.id",
+            "customer.id.plaintext",
+            "customer.id.type",
+            "customer.name",
+            "date-of-birth",
+            "dk.cpr",
+            "ee.ik",
+            "ee.serialnumber",
+            "fi-hetu",
+            "fi.hetu",
+            "firstname",
+            "fnr",
+            "friendly-name",
+            "gender",
+            "given-name",
+            "givenname",
+            "hetu",
+            "ip",
+            "lastname",
+            "middlename",
+            "monetary-limit-amount",
+            "monetary-limit-currency",
+            "name",
+            "national-id",
+            "nationality",
+            "nemid",
+            "no.fnr",
+            "phone",
+            "pid",
+            "plain-name",
+            "satu",
+            "sbid",
+            "se.persnr",
+            "security-level",
+            "serialnumber",
+            "subject-dn",
+            "subject-serial-number",
+            "surname",
+            "telia",
+            "unique-id"
+    )
     
     companion object
     {
@@ -85,17 +135,26 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         val samlFacade = SamlFacade(configuration)
         val samlResponseData = samlFacade.readSamlResponse(requestModel.samlResponse, requestModel.uri)
         val subjectAttributes = mutableListOf<Attribute>()
-        val contextAttributes = ContextAttributes.empty()
+        val contextAttributes = mutableListOf<Attribute>()
         
         for (attribute in samlResponseData.attributes)
         {
-            subjectAttributes.add(Attribute.of(attribute.name, attribute.valueList))
+            val attributes = if (allSubjectAttributeNames.contains(attribute.name))
+                subjectAttributes else contextAttributes
+            
+            val attributeName = if (attribute.name.contains('.'))
+                AttributeName.of(attribute.name, "period-delimited") else AttributeName.of(attribute.name)
+            
+            val attributeValue = if (attribute.valueList.size == 1)
+                AttributeValue.of(attribute.value) else AttributeValue.of(attribute.valueList)
+            
+            attributes.add(Attribute.of(attributeName, attributeValue))
         }
         
         return Optional.of(
                 AuthenticationResult(
                         AuthenticationAttributes.of(
                                 SubjectAttributes.of(samlResponseData.subjectName, Attributes.of(subjectAttributes)),
-                                contextAttributes)))
+                                ContextAttributes.of(contextAttributes))))
     }
 }
