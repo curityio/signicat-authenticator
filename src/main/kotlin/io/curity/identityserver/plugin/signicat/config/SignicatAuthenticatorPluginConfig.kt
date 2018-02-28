@@ -17,29 +17,70 @@
 package io.curity.identityserver.plugin.signicat.config
 
 import se.curity.identityserver.sdk.config.Configuration
+import se.curity.identityserver.sdk.config.OneOf
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum
+import se.curity.identityserver.sdk.config.annotation.DefaultOption
+import se.curity.identityserver.sdk.config.annotation.DefaultString
+import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
-import se.curity.identityserver.sdk.service.HttpClient
 import se.curity.identityserver.sdk.service.UserPreferenceManager
-import java.net.URL
+import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
+import java.util.Optional
 
 interface SignicatAuthenticatorPluginConfig : Configuration
 {
-    val userPreferenceManager: UserPreferenceManager
-    
     val exceptionFactory: ExceptionFactory
     
-    @get:DefaultEnum("sweden")
+    val userPreferencesManager : UserPreferenceManager
+    
+    @get:Description("A country's type of authentication which should be used (e.g., Swedish BankID or Danish NemID)")
+    @get:DefaultEnum("SWEDEN")
     val country: Country
     
-    val signingServiceName: String
+    @get:Description("The service that has been registered with Signicat")
+    @get:DefaultString("demo")
+    val serviceName: String
     
-    val signicatAuthenticationUrl: URL
+    @get:Description("The environment to connect to")
+    val environment: Environment
     
-    val httpClient: HttpClient
+    interface Environment : OneOf
+    {
+        @get:DefaultOption
+        val standardEnvironment : Optional<PredefinedEnvironment>
+        
+        val customEnvironment : Optional<String>
+    }
+    
+    @get:Description("The name of the graphics profile that should be used at Signicat")
+    val graphicsProfile: Optional<String>
+    
+    val authenticationInformationProvider : AuthenticatorInformationProvider
+}
+
+enum class PredefinedEnvironment
+{
+    @Description("Non-production environment for testing and verification")
+    PRE_PRODUCTION,
+    
+    @Description("The production environment should be use")
+    PRODUCTION
 }
 
 enum class Country
 {
-    sweden, denmark, finland, norway
+    @Description("Require that the user login with Swedish BankID")
+    SWEDEN,
+    
+    @Description("Require that the user login with Danish NemID")
+    DENMARK,
+    
+    @Description("Require that the user login with Finish Tupas")
+    FINLAND,
+    
+    @Description("Require that the user login with Norwegian BankID")
+    NORWAY,
+    
+    @Description("Require that the user login with an Estonian E-ID")
+    ESTONIA
 }
