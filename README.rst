@@ -10,7 +10,7 @@ This project provides an opens source Signicat Authenticator plug-in for the Cur
 System Requirements
 ~~~~~~~~~~~~~~~~~~~
 
-* Curity Identity Server 2.4.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
+Curity Identity Server 2.4.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
 
 Requirements for Building from Source
 """""""""""""""""""""""""""""""""""""
@@ -47,7 +47,7 @@ During development of the plug-in, it is very easy to copy the plug-in JAR and i
     mvn install dependency:copy-dependencies \
         -DincludeScope=runtime \
         -DoutputDirectory=$IDSVR_HOME/lib/plugins/signicat && \
-    cp target/identityserver.plugins.authenticators.signicat-*.jar $IDSVR_HOME/lib/plugins/signicat
+        cp target/identityserver.plugins.authenticators.signicat-*.jar $IDSVR_HOME/lib/plugins/signicat
 
 Because the server must be restarted after this, it can be quite tedious and time consuming. For that reason, it is better to use `Intellij's HotSwap capability <https://www.jetbrains.com/help/idea/reloading-classes.html>`_ to reload the classes after compilation. This will allow a developer to HotSwap changes without requiring a restart. If it fails to HotSwap some change, however, the above technique can be used.
 
@@ -59,26 +59,31 @@ The easiest way to configure a new Signicat authenticator is using the Curity ad
 1. Go to the ``Authenticators`` page of the authentication profile wherein the authenticator instance should be created.
 2. Click the ``New Authenticator`` button.
 3. Enter a name (e.g., ``signicat1``). For production, this name needs to match the URI component in the callback URL whitelisted by Signicat.
-4. For the type, pick the ``Signicat`` option:
+4. For the type, pick the ``Signicat`` option.
+5. On the next page, you can define all of the standard authenticator configuration options like any previous authenticator that should run, the resulting ACR, transformers that should executed, etc. At the bottom of the configuration page, the Signicat-specific options can be found.
 
-    .. figure:: docs/images/criipto-authenticator-type-in-curity.png
+    .. figure:: docs/images/signicat-authenticator-type-in-curity.png
         :align: center
         :width: 600px
 
-5. On the next page, you can define all of the standard authenticator configuration options like any previous authenticator that should run, the resulting ACR, transformers that should executed, etc. At the bottom of the configuration page, the Signicat-specific options can be found.
+    Using these inputs, certain required and optional configuration settings may be provided.
 
     .. note::
 
         The Signicat-specific configuration is generated dynamically based on the `configuration model defined in the Kotlin interface <https://github.com/curityio/signicat-authenticator/blob/master/src/main/kotlin/io/curity/identityserver/plugin/signicat/config/SignicatAuthenticatorPluginConfig.kt>`_.
 
-6. Certain required and optional configuration settings may be provided.
-7. In the ``Client ID`` textfield, enter the client ID from the Criipto app configuration.
-9. Also enter the matching ``Client Secret``.
-10. If you wish to limit the scopes that Curity will request of Criipto, select the desired scopes from dropdown.
+6. From the ``Country`` dropdown box, pick the country's kind of E-ID that should be used. For example, pick ``sweden`` to use Swedish BankID or ``denmark`` to use NemID.
+7. Enter the ``Service Name`` that you have registered with Signicat or use the default of ``demo`` for testing.
+8. From the ``Environment`` dropdown box, select either ``standard-environment`` or ``custom-environment``. The former should be used if you are not using a custom domain (e.g., ``signicat.example.com``). If not, then select ``standard-environment`` and pick either ``production`` or ``pre-production``. ``pre-production`` will cause certain test certificates to be used and warnings to be logged in the server log.
+9. Optionally, enter the name of a `graphics profile <https://support.signicat.com/display/S2/Graphical+profiles%2C+fonts+and+styling>`_ in the ``Graphics Profile`` text field.
 
 Once all of these changes are made, they will be staged, but not committed (i.e., not running). To make them active, click the ``Commit`` menu option in the ``Changes`` menu. Optionally enter a comment in the ``Deploy Changes`` dialogue and click ``OK``.
 
 Once the configuration is committed and running, the authenticator can be used like any other.
+
+.. note::
+
+    When using the authenticator with the Curity Security Token Service (i.e., the "OAuth server"), if the client application sends the OpenID-Connect-defined ``ui_locales`` request parameter, that will be passed to Signicat as the preferred language. Also, if a request has been made by some other client (in the same browser) using the ``ui_locales``, this preferred language will be propagated to Signicat even if the application does not explicitly provide it in the request.
 
 License
 ~~~~~~~
