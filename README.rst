@@ -31,7 +31,7 @@ All of these JAR files can be obtained by downloading the `Signicat Connector fo
 
 .. note::
 
-    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, and _should not_ be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
+    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, and *should not* be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
 
 Once the plug-in and its dependencies are placed into the plug-in group directory, it will become available as soon as each node is restarted.
 
