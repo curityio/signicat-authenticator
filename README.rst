@@ -27,11 +27,11 @@ To install this plug-in, either download a binary version available from the `re
 * commons-codec-1.10.jar
 * xmlsec-1.5.8.jar
 
-All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_. Apache Commons Codec and Apache Santuario can be downloaded from Maven central or their respective project web sites.
+All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
 
 .. note::
 
-    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, but installing them should not adversely effect the plug-in either.
+    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, and _should not_ be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
 
 Once the plug-in and its dependencies are placed into the plug-in group directory, it will become available as soon as each node is restarted.
 
