@@ -78,7 +78,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Implementation-Title>Signica-Authenticator-Plugin</Implementation-Title>
+                            <Implementation-Title>Signicat-Authenticator-Plugin</Implementation-Title>
                             <Implementation-Vendor>Curity AB</Implementation-Vendor>
                         </manifestEntries>
                     </archive>
