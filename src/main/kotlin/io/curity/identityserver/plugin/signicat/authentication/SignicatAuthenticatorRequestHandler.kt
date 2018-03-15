@@ -42,7 +42,7 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
     private val exceptionFactory = config.exceptionFactory
     private val environment = config.environment
     private val service = config.serviceName
-    private val profile = config.graphicsProfile
+    private val graphicsProfile = config.graphicsProfile
     private val country = config.country
     private val authenticationInformationProvider = config.authenticationInformationProvider
     private val preferredLanguage = config.userPreferencesManager.locales
@@ -89,7 +89,7 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
         }
         var id = "$method:"
         
-        profile.ifPresent { id += it }
+        graphicsProfile.ifPresent { id += it }
         
         if (preferredLanguage != null)
         {
@@ -103,7 +103,7 @@ class SignicatAuthenticatorRequestHandler(config : SignicatAuthenticatorPluginCo
             }
             catch (_ : IllformedLocaleException)
             {
-                logger.debug("The prefered language '$preferredLanguage' could not be parsed, so it will not be " +
+                logger.debug("The preferred language '$preferredLanguage' could not be parsed, so it will not be " +
                         "sent to Signicat")
             }
         }
