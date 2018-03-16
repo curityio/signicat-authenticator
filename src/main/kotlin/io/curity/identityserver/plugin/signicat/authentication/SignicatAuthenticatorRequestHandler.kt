@@ -30,6 +30,7 @@ import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticator
 import io.curity.identityserver.plugin.signicat.signing.SigningClientFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import se.curity.identityserver.sdk.attribute.Attribute
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
@@ -43,6 +44,8 @@ import java.util.IllformedLocaleException
 import java.util.Locale
 import java.util.Optional
 
+val REQUEST_ID_SESSION_KEY = "REQUEST_ID_SESSION_KEY"
+
 class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<Request>
 {
@@ -52,6 +55,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val graphicsProfile = config.graphicsProfile
     private val country = config.country
     private val useSigning = config.useSigning
+    private val sessionManager = config.sessionManager
     private val authenticationInformationProvider = config.authenticationInformationProvider
     private val environment = config.environment.customEnvironment.orElseGet {
         config.environment.standardEnvironment.map {
@@ -85,12 +89,12 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     
     override fun preProcess(request: Request, response: Response) = request
     
-    override fun get(request: Request, response: Response): Optional<AuthenticationResult> = handle(request, response)
+    override fun get(request: Request, response: Response): Optional<AuthenticationResult> = handle()
     
     // Strange but fine if the client wants to do a post to start the flow
-    override fun post(request: Request, response: Response): Optional<AuthenticationResult> = handle(request, response)
+    override fun post(request: Request, response: Response): Optional<AuthenticationResult> = handle()
     
-    private fun handle(request: Request, response: Response): Optional<AuthenticationResult>
+    private fun handle(): Optional<AuthenticationResult>
     {
         val authUrl = authenticationInformationProvider.fullyQualifiedAuthenticationUri
         val target = URL(authUrl.toURL(), "${authUrl.path}/${SignicatAuthenticatorPluginDescriptor.CALLBACK}")
@@ -99,7 +103,9 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         
         val location = if (useSigning.isPresent)
         {
-            val (requestId, taskId) = getSigningInfo(environment, service, preferredLanguage, graphicsProfile)
+            val (requestId, taskId) = getSigningInfo(service, preferredLanguage, graphicsProfile, target)
+            
+            sessionManager.put(Attribute.of(REQUEST_ID_SESSION_KEY, requestId))
         
             "https://$environment.signicat.com/std/docaction/$service?request_id=$requestId&task_id=$taskId"
         }
@@ -126,8 +132,8 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         throw exceptionFactory.redirectException(location, RedirectStatusCode.SEE_OTHER)
     }
     
-    private fun getSigningInfo(env: String, serviceName: String, preferredLanguage: Optional<String>,
-                               graphicsProfile: Optional<String>): Pair<String, String>
+    private fun getSigningInfo(serviceName: String, preferredLanguage: Optional<String>,
+                               graphicsProfile: Optional<String>, target: URL): Pair<String, String>
     {
         val taskId = "task_1"
         val request = with(CreateRequestRequest()) {
@@ -146,6 +152,8 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                 
                 task += with(Task()) {
                     id = taskId
+                    onTaskCancel = "$target/cancel"
+                    onTaskComplete = "$target"
                     
                     documentAction += with(DocumentAction()) {
                         type = DocumentActionType.SIGN

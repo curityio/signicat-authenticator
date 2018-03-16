@@ -23,8 +23,8 @@ import se.curity.identityserver.sdk.config.annotation.DefaultOption
 import se.curity.identityserver.sdk.config.annotation.DefaultString
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
+import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.service.UserPreferenceManager
-import se.curity.identityserver.sdk.service.WebServiceClientFactory
 import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
 import java.util.Optional
 
@@ -64,6 +64,8 @@ interface SignicatAuthenticatorPluginConfig : Configuration
         @get:Description("The client secret used to authenticate to the Signicat signing service")
         val secret : String
     }
+    
+    val sessionManager : SessionManager
     
     val authenticationInformationProvider : AuthenticatorInformationProvider
 }

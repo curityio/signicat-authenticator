@@ -31,23 +31,36 @@ import se.curity.identityserver.sdk.attribute.ContextAttributes
 import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
+import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
 import java.net.URL
 import java.util.Optional
 import java.util.Properties
 
-class CallbackRequestModel(request: Request)
+sealed class CallbackRequestModel
+
+class GetCallbackRequestModel(sessionManager: SessionManager) : CallbackRequestModel()
 {
+    @NotBlank(message = "validation.error.request-id-no-found")
+    private val _requestId: String? = sessionManager.get(REQUEST_ID_SESSION_KEY)?.value?.toString()
+    
+    val requestId: String
+        get() = _requestId ?: throw IllegalStateException("request id is null and was not expected to be")
+}
+
+class PostCallbackRequestModel(request: Request) : CallbackRequestModel()
+{
+    // TODO: Add message key
     @NotBlank(message = "validation.error.samlResponse.required")
-    val samlResponse : String? = request.getFormParameterValueOrError("SAMLResponse")
+    val samlResponse: String? = request.getFormParameterValueOrError("SAMLResponse")
     val uri: URL = URL(request.url)
 }
 
 class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<CallbackRequestModel>
 {
-    private val exceptionFactory = config.exceptionFactory
+    private val sessionManager = config.sessionManager
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
@@ -118,18 +131,26 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         private const val PROD_DN = "CN=id.signicat.com/std, OU=Signicat, O=Signicat, L=Trondheim, ST=Norway, C=NO"
     }
     
-    override fun get(requestModel: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
+    override fun preProcess(request: Request, response: Response): CallbackRequestModel = if (request.isGetRequest)
+        GetCallbackRequestModel(sessionManager) else
+        PostCallbackRequestModel(request)
+    
+    /**
+     * Handles a callback that used signing.
+     */
+    override fun get(model: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
-        throw exceptionFactory.methodNotAllowed()
+        val requestModel = model as GetCallbackRequestModel // Safe cast
+        
+        return Optional.empty()
     }
     
-    override fun preProcess(request: Request, response: Response): CallbackRequestModel
+    /**
+     * Handle a callback that used authentication.
+     */
+    override fun post(model: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
-        return CallbackRequestModel(request)
-    }
-    
-    override fun post(requestModel: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
-    {
+        val requestModel = model as PostCallbackRequestModel // Safe cast
         val configuration = Properties()
         
         if (isProd)
