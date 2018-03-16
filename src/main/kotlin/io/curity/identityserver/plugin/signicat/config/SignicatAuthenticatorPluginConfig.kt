@@ -18,12 +18,14 @@ package io.curity.identityserver.plugin.signicat.config
 
 import se.curity.identityserver.sdk.config.Configuration
 import se.curity.identityserver.sdk.config.OneOf
+import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum
 import se.curity.identityserver.sdk.config.annotation.DefaultOption
 import se.curity.identityserver.sdk.config.annotation.DefaultString
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.UserPreferenceManager
+import se.curity.identityserver.sdk.service.WebServiceClientFactory
 import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
 import java.util.Optional
 
@@ -54,6 +56,12 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     
     @get:Description("The name of the graphics profile that should be used at Signicat")
     val graphicsProfile: Optional<String>
+    
+    @get:Description("Whether or not authentication should be obtained by signing")
+    @get:DefaultBoolean(false)
+    val useSigning: Boolean
+    
+    val webServiceClientFactory : WebServiceClientFactory
     
     val authenticationInformationProvider : AuthenticatorInformationProvider
 }
