@@ -19,6 +19,7 @@ package io.curity.identityserver.plugin.signicat.authentication
 import com.signicat.services.client.saml.SamlFacade
 import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
+import io.curity.identityserver.plugin.signicat.signing.SigningClientFactory
 import org.hibernate.validator.constraints.NotBlank
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -37,6 +38,10 @@ import se.curity.identityserver.sdk.web.Response
 import java.net.URL
 import java.util.Optional
 import java.util.Properties
+import com.signicat.document.v3.GetStatusRequest
+import com.signicat.document.v3.TaskStatus
+import se.curity.identityserver.sdk.errors.ErrorCode
+
 
 sealed class CallbackRequestModel
 
@@ -60,7 +65,10 @@ class PostCallbackRequestModel(request: Request) : CallbackRequestModel()
 class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     : AuthenticatorRequestHandler<CallbackRequestModel>
 {
+    private val exceptionFactory = config.exceptionFactory
     private val sessionManager = config.sessionManager
+    private val serviceName = config.serviceName
+    private val useSigning = config.useSigning
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
@@ -141,8 +149,28 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     override fun get(model: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
         val requestModel = model as GetCallbackRequestModel // Safe cast
+        val client = SigningClientFactory.create()
+        val secret = useSigning
+                // For this to throw, the presence of useSigning wasn't checked before. This is a logic error
+                // and should never happen.
+                .orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.PLUGIN_ERROR) }
+                .secret
+    
+        val request = with(GetStatusRequest())
+        {
+            password = secret
+            service = serviceName
+            requestId.add(requestModel.requestId)
+            this
+        }
         
-        return Optional.empty()
+        val taskStatusInfo = client.getStatus(request)
+        
+        return if (taskStatusInfo.taskStatusInfo.size > 0 &&
+                taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED)
+            Optional.of(AuthenticationResult("teddie"))
+        else
+            Optional.empty()
     }
     
     /**
