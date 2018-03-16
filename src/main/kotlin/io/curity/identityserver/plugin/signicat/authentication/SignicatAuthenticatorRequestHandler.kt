@@ -108,27 +108,29 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         val target = URL(authUrl.toURL(), "${authUrl.path}/${SignicatAuthenticatorPluginDescriptor.CALLBACK}")
         
         logger.debug("Redirecting to Signicat with the callback URL of {}", target)
-    
-        val method = when (country)
-        {
-            Country.SWEDEN  -> "sbid"
-            Country.DENMARK -> "nemid"
-            Country.ESTONIA -> "esteid"
-            Country.FINLAND -> "tupas"
-            Country.NORWAY  -> "nbid"
-        }
-        var id = "$method:"
-    
-        graphicsProfile.ifPresent { id += it }
-        preferredLanguage.ifPresent { id += ":it" }
         
-        var location = "https://$environment.signicat.com/std/method/$service?id=$id&target=$target"
-        
-        if (useSigning)
+        val location = if (useSigning)
         {
             val (requestId, taskId) = getSigningInfo(environment, service, preferredLanguage, graphicsProfile)
-    
-            location += "&request_id=$requestId&task_id=$taskId"
+        
+            "https://$environment.signicat.com/std/doaction/$service?request_id=$requestId&task_id=$taskId"
+        }
+        else
+        {
+            val method = when (country)
+            {
+                Country.SWEDEN  -> "sbid"
+                Country.DENMARK -> "nemid"
+                Country.ESTONIA -> "esteid"
+                Country.FINLAND -> "tupas"
+                Country.NORWAY  -> "nbid"
+            }
+            var id = "$method:"
+        
+            graphicsProfile.ifPresent { id += it }
+            preferredLanguage.ifPresent { id += ":it" }
+        
+            "https://$environment.signicat.com/std/method/$service?id=$id&target=$target"
         }
         
         // Use a 303 in case this a POST request, so that the user agent is guaranteed (by compliance with HTTP) to
@@ -164,7 +166,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                             value = when (country)
                             {
                                 Country.SWEDEN  -> "sbid"
-                                Country.DENMARK -> "nemid-sign"
+                                Country.DENMARK -> "nemid"
                                 Country.ESTONIA -> "esteid"
                                 Country.FINLAND -> "tupas"
                                 Country.NORWAY  -> "nbid"
