@@ -65,8 +65,6 @@ interface SignicatAuthenticatorPluginConfig : Configuration
         val secret : String
     }
     
-    val webServiceClientFactory : WebServiceClientFactory
-    
     val authenticationInformationProvider : AuthenticatorInformationProvider
 }
 

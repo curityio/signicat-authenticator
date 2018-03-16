@@ -17,30 +17,27 @@
 package io.curity.identityserver.plugin.signicat.authentication
 
 import com.signicat.document.v3.AuthenticationBasedSignature
+import com.signicat.document.v3.CreateRequestRequest
+import com.signicat.document.v3.DocumentAction
+import com.signicat.document.v3.DocumentActionType
+import com.signicat.document.v3.Method
+import com.signicat.document.v3.ProvidedDocument
+import com.signicat.document.v3.Task
 import io.curity.identityserver.plugin.signicat.config.Country
 import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
 import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticatorPluginDescriptor
 import io.curity.identityserver.plugin.signicat.signing.SigningClientFactory
-import com.signicat.document.v3.CreateRequestRequest
-import com.signicat.document.v3.DocumentAction
-import com.signicat.document.v3.DocumentActionType
-import com.signicat.document.v3.Method
-import com.signicat.document.v3.SdsDocument
-import com.signicat.document.v3.Signature
-import com.signicat.document.v3.Task
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
-import se.curity.identityserver.sdk.http.HttpRequest
-import se.curity.identityserver.sdk.http.HttpResponse
 import se.curity.identityserver.sdk.http.RedirectStatusCode
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
-import java.net.URI
 import java.net.URL
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.IllformedLocaleException
 import java.util.Locale
@@ -58,7 +55,6 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val country = config.country
     private val useSigning = config.useSigning
     private val authenticationInformationProvider = config.authenticationInformationProvider
-    private val webserviceClientFactory = config.webServiceClientFactory
     private val environment = config.environment.customEnvironment.orElseGet {
         config.environment.standardEnvironment.map {
             when (it)
@@ -142,7 +138,6 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private fun getSigningInfo(env: String, serviceName: String, preferredLanguage: Optional<String>,
                                graphicsProfile: Optional<String>): Pair<String, String>
     {
-        val sdsDocument = requestSessionDataStorageDocument(env, serviceName)
         val taskId = "task_1"
         val request = with(CreateRequestRequest()) {
             service = serviceName
@@ -157,14 +152,19 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                 
                 preferredLanguage.ifPresent { language = it }
                 graphicsProfile.ifPresent { profile = it }
-                document += sdsDocument
                 
                 task += with(Task()) {
                     id = taskId
                     
                     documentAction += with(DocumentAction()) {
                         type = DocumentActionType.SIGN
-                        documentRef = sdsDocument.id
+                        document = with(ProvidedDocument()) {
+                            data = URLEncoder.encode("Login", StandardCharsets.UTF_8.name()).toByteArray()
+                            id = "document_1"
+                            description = "Login"
+                            mimeType = "text/plain"
+                            this
+                        }
                         this
                     }
                     authenticationBasedSignature += with(AuthenticationBasedSignature()) {
@@ -192,29 +192,5 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         val response = client.createRequest(request)
         
         return Pair(response.requestId.get(0), taskId)
-    }
-    
-    private fun requestSessionDataStorageDocument(env: String, service: String): SdsDocument
-    {
-        val webServiceClient = webserviceClientFactory.create(URI.create("https://$env.signicat.com/doc/$service/sds"))
-        val response = webServiceClient.request()
-                .header("Authorization", "Basic ZGVtbzpCb25kMDA3") // TODO create from config
-                .header("Content-Type", "text/plain;charset=utf8")
-                .body(HttpRequest.fromString("test", StandardCharsets.UTF_8))
-                .post()
-                .response()
-        
-        if (response.statusCode() != 201)
-        {
-            throw exceptionFactory.externalServiceException("Could not create a document at the SDS service")
-        }
-        
-        return with(SdsDocument()) {
-            refSdsId = response.body(HttpResponse.asString())
-            externalReference = "some_id"
-            id = externalReference
-            description = "This is a description"
-            this
-        }
     }
 }
