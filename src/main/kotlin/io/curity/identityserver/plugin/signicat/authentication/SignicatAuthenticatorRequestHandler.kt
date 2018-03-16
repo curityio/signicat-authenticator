@@ -43,10 +43,8 @@ import java.util.IllformedLocaleException
 import java.util.Locale
 import java.util.Optional
 
-class RequestModel(request: Request)
-
 class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginConfig)
-    : AuthenticatorRequestHandler<RequestModel>
+    : AuthenticatorRequestHandler<Request>
 {
     private val logger: Logger = LoggerFactory.getLogger(SignicatAuthenticatorRequestHandler::class.java)
     private val exceptionFactory = config.exceptionFactory
@@ -85,21 +83,14 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     }
     else Optional.empty()
     
-    override fun preProcess(request: Request, response: Response): RequestModel = RequestModel(request)
+    override fun preProcess(request: Request, response: Response) = request
     
-    override fun get(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
-    {
-        return handle(requestModel, response)
-    }
+    override fun get(request: Request, response: Response): Optional<AuthenticationResult> = handle(request, response)
     
-    override fun post(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
-    {
-        // Strange but fine if the client wants to do a post to start the flow
-        
-        return handle(requestModel, response)
-    }
+    // Strange but fine if the client wants to do a post to start the flow
+    override fun post(request: Request, response: Response): Optional<AuthenticationResult> = handle(request, response)
     
-    private fun handle(requestModel: RequestModel, response: Response): Optional<AuthenticationResult>
+    private fun handle(request: Request, response: Response): Optional<AuthenticationResult>
     {
         val authUrl = authenticationInformationProvider.fullyQualifiedAuthenticationUri
         val target = URL(authUrl.toURL(), "${authUrl.path}/${SignicatAuthenticatorPluginDescriptor.CALLBACK}")
