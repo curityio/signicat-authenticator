@@ -18,7 +18,6 @@ package io.curity.identityserver.plugin.signicat.config
 
 import se.curity.identityserver.sdk.config.Configuration
 import se.curity.identityserver.sdk.config.OneOf
-import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.DefaultEnum
 import se.curity.identityserver.sdk.config.annotation.DefaultOption
 import se.curity.identityserver.sdk.config.annotation.DefaultString
@@ -58,8 +57,13 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val graphicsProfile: Optional<String>
     
     @get:Description("Whether or not authentication should be obtained by signing")
-    @get:DefaultBoolean(false)
-    val useSigning: Boolean
+    val useSigning: Optional<UseSigning>
+    
+    interface UseSigning
+    {
+        @get:Description("The client secret used to authenticate to the Signicat signing service")
+        val secret : String
+    }
     
     val webServiceClientFactory : WebServiceClientFactory
     

@@ -16,6 +16,7 @@
 
 package io.curity.identityserver.plugin.signicat.authentication
 
+import com.signicat.document.v3.AuthenticationBasedSignature
 import io.curity.identityserver.plugin.signicat.config.Country
 import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
@@ -109,11 +110,11 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         
         logger.debug("Redirecting to Signicat with the callback URL of {}", target)
         
-        val location = if (useSigning)
+        val location = if (useSigning.isPresent)
         {
             val (requestId, taskId) = getSigningInfo(environment, service, preferredLanguage, graphicsProfile)
         
-            "https://$environment.signicat.com/std/doaction/$service?request_id=$requestId&task_id=$taskId"
+            "https://$environment.signicat.com/std/docaction/$service?request_id=$requestId&task_id=$taskId"
         }
         else
         {
@@ -144,10 +145,15 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         val sdsDocument = requestSessionDataStorageDocument(env, serviceName)
         val taskId = "task_1"
         val request = with(CreateRequestRequest()) {
-            password = "Bond007"
             service = serviceName
+            password = useSigning
+                    // For this to throw, the presence of useSigning wasn't checked before. This is a logic error
+                    // and should never happen.
+                    .orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.PLUGIN_ERROR) }
+                    .secret
             request += with(com.signicat.document.v3.Request()) {
-                clientReference = "cliref1"
+                clientReference = authenticationInformationProvider.fullyQualifiedAuthenticationUri.
+                        path.reversed().split("/").first().reversed() // Authenticator ID
                 
                 preferredLanguage.ifPresent { language = it }
                 graphicsProfile.ifPresent { profile = it }
@@ -161,7 +167,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                         documentRef = sdsDocument.id
                         this
                     }
-                    signature += with(Signature()) {
+                    authenticationBasedSignature += with(AuthenticationBasedSignature()) {
                         method += with(Method()) {
                             value = when (country)
                             {
