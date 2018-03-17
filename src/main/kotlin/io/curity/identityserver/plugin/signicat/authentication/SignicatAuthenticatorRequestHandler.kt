@@ -25,7 +25,6 @@ import com.signicat.document.v3.ProvidedDocument
 import com.signicat.document.v3.Subject
 import com.signicat.document.v3.Task
 import io.curity.identityserver.plugin.signicat.config.Country
-import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
 import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticatorPluginDescriptor
 import io.curity.identityserver.plugin.signicat.signing.SigningClientFactory
@@ -51,9 +50,6 @@ import java.util.IllformedLocaleException
 import java.util.Locale
 import java.util.Optional
 
-val REQUEST_ID_SESSION_KEY = "REQUEST_ID_SESSION_KEY"
-val USER_ID_SESSION_KEY = "USER_ID_SESSION_KEY"
-
 class RequestModel(request: Request)
 {
     val username : String? = request.getFormParameterValueOrError("username")
@@ -72,19 +68,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val sessionManager = config.sessionManager
     private val userPreferenceManager = config.userPreferencesManager
     private val authenticatorInformationProvider = config.authenticatorInformationProvider
-    private val environment = config.environment.customEnvironment.orElseGet {
-        config.environment.standardEnvironment.map {
-            when (it)
-            {
-                PredefinedEnvironment.PRE_PRODUCTION -> "preprod"
-                PredefinedEnvironment.PRODUCTION     -> "id"
-                // This and the other exceptional case below are guaranteed by the data model to never happen, but
-                // this fact isn't know in the type system. So, these cases are handled to avoid bogus warnings,
-                // but they will not occur.
-                null -> throw exceptionFactory.internalServerException(ErrorCode.CONFIGURATION_ERROR)
-            }
-        }.orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.CONFIGURATION_ERROR) }
-    }
+    private val environment = withEnvironment(config)
     private val preferredLanguage = if (config.userPreferencesManager.locales != null)
     {
         val bcp47languageTag = config.userPreferencesManager.locales.split(' ', limit = 1)[0] // Use only 1st
@@ -132,7 +116,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                 
                 userPreferenceManager.saveUsername(username)
     
-                "https://$environment.signicat.com/std/docaction/$serviceName?request_id=$requestId&task_id=$taskId"
+                "https://$environment/std/docaction/$serviceName?request_id=$requestId&task_id=$taskId"
             }
             else
             {
@@ -165,7 +149,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             graphicsProfile.ifPresent { id += it }
             preferredLanguage.ifPresent { id += ":it" }
         
-            "https://$environment.signicat.com/std/method/$serviceName?id=$id&target=$target"
+            "https://$environment/std/method/$serviceName?id=$id&target=$target"
         }
         
         // Use a 303 in case this a POST request, so that the user agent is guaranteed (by compliance with HTTP) to
@@ -233,7 +217,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             this
         }
         
-        val client = SigningClientFactory.create()
+        val client = SigningClientFactory.create(environment)
         val response = client.createRequest(request)
         
         return Pair(response.requestId.get(0), taskId)

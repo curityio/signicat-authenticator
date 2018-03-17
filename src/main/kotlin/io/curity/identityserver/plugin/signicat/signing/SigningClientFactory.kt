@@ -28,21 +28,17 @@ class SigningClientFactory
         private val JAXWS_PROPERTIES_REQUEST_TIMEOUT_INTERNAL = "com.sun.xml.internal.ws.request.timeout"
         private val JAXWS_PROPERTIES_REQUEST_TIMEOUT = "com.sun.xml.ws.request.timeout"
         
-        fun create(endpoint: String? = null): DocumentEndPoint
+        fun create(environment: String): DocumentEndPoint
         {
             val client = DocumentService()
             val port = client.documentServiceEndPointPort
             val bindingProvider = port as BindingProvider
-        
-            if (endpoint == null)
-            {
-                logger.debug("Using the endpoint of the Signing Service from the WSDL")
-            }
-            else
-            {
-                // Override the endpoint in the WSDL with the configured endpoint
-                bindingProvider.requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint)
-            }
+            val endpoint = "https://$environment/ws/documentservice-v3"
+    
+            // Override the endpoint in the WSDL with the configured endpoint
+            logger.debug("Using Signing Service endpoint: $endpoint")
+            
+            bindingProvider.requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint)
 
 //        bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY, _sslSocketFactory)
 //        bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL, _sslSocketFactory)

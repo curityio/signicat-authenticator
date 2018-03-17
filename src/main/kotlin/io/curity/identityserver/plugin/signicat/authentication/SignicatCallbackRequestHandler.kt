@@ -42,7 +42,6 @@ import com.signicat.document.v3.GetStatusRequest
 import com.signicat.document.v3.TaskStatus
 import se.curity.identityserver.sdk.errors.ErrorCode
 
-
 sealed class CallbackRequestModel
 
 class GetCallbackRequestModel(sessionManager: SessionManager) : CallbackRequestModel()
@@ -77,6 +76,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
+    private val environment = withEnvironment(config)
     private val allSubjectAttributeNames = setOf(
             "age",
             "age-class",
@@ -154,7 +154,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     override fun get(model: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
         val requestModel = model as GetCallbackRequestModel // Safe cast
-        val client = SigningClientFactory.create()
+        val client = SigningClientFactory.create(environment)
         val secret = useSigning
                 // For this to throw, the presence of useSigning wasn't checked before. This is a logic error
                 // and should never happen.
