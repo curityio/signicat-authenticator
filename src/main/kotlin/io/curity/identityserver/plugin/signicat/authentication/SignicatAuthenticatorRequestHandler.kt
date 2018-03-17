@@ -129,6 +129,8 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     
                 sessionManager.put(Attribute.of(REQUEST_ID_SESSION_KEY, requestId))
                 sessionManager.put(Attribute.of(USER_ID_SESSION_KEY, username))
+                
+                userPreferenceManager.saveUsername(username)
     
                 "https://$environment.signicat.com/std/docaction/$service?request_id=$requestId&task_id=$taskId"
             }
