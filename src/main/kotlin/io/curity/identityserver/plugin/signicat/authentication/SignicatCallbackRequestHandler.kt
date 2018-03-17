@@ -47,11 +47,17 @@ sealed class CallbackRequestModel
 
 class GetCallbackRequestModel(sessionManager: SessionManager) : CallbackRequestModel()
 {
-    @NotBlank(message = "validation.error.request-id-no-found")
+    @NotBlank(message = "validation.error.request-id-not-found")
     private val _requestId: String? = sessionManager.get(REQUEST_ID_SESSION_KEY)?.value?.toString()
+    
+    @NotBlank(message = "validation.error.username-not-found")
+    private val _username: String? = sessionManager.get(USER_ID_SESSION_KEY)?.value?.toString()
     
     val requestId: String
         get() = _requestId ?: throw IllegalStateException("request id is null and was not expected to be")
+    
+    val username: String
+        get() = _username ?: throw IllegalStateException("username is null and was not expected to be")
 }
 
 class PostCallbackRequestModel(request: Request) : CallbackRequestModel()
@@ -168,7 +174,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         
         return if (taskStatusInfo.taskStatusInfo.size > 0 &&
                 taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED)
-            Optional.of(AuthenticationResult("teddie"))
+            Optional.of(AuthenticationResult(requestModel.username))
         else
             Optional.empty()
     }
