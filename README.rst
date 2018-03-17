@@ -4,8 +4,9 @@ Signicat Authenticator Plug-in
 .. image:: https://travis-ci.org/curityio/signicat-authenticator.svg?branch=master
     :target: https://travis-ci.org/curityio/signicat-authenticator
 
-An authenticator that uses the Signicat signing service to do authentication
-This project provides an opens source Signicat Authenticator plug-in for the Curity Identity Server. This allows an administrator to add functionality to Curity which will then enable end users to login using their Signicat credentials -- or more exactly -- the credentials of some E-ID provider, like BankID or NemID. The app that integrates with Curity will be provided with all of the attributes released by the user at Signicat, including the user's personal number and other biographical information.
+An authenticator that uses the Signicat login and signing services to do authentication.
+
+This project provides an open source Signicat Authenticator plug-in for the Curity Identity Server. This allows an administrator to add functionality to Curity which will then enable end users to login using their Signicat credentials -- or more exactly -- the credentials of some E-ID provider, like BankID or NemID. The app that integrates with Curity will be provided with all of the attributes released by the user at Signicat, including the user's personal number and other biographical information.
 
 System Requirements
 ~~~~~~~~~~~~~~~~~~~
@@ -76,6 +77,7 @@ The easiest way to configure a new Signicat authenticator is using the Curity ad
 7. Enter the ``Service Name`` that you have registered with Signicat or use the default of ``demo`` for testing.
 8. From the ``Environment`` dropdown box, select either ``standard-environment`` or ``custom-environment``. The former should be used if you are not using a custom domain (e.g., ``signicat.example.com``). If not, then select ``standard-environment`` and pick either ``production`` or ``pre-production``. ``pre-production`` will cause certain test certificates to be used and warnings to be logged in the server log.
 9. Optionally, enter the name of a `graphics profile <https://support.signicat.com/display/S2/Graphical+profiles%2C+fonts+and+styling>`_ in the ``Graphics Profile`` text field.
+10. If signing should be used to perform authentication, toggle on the option ``Use Singing`` and enter the ``Secret`` used to identify your organization to the Signicat signing service.
 
 Once all of these changes are made, they will be staged, but not committed (i.e., not running). To make them active, click the ``Commit`` menu option in the ``Changes`` menu. Optionally enter a comment in the ``Deploy Changes`` dialogue and click ``OK``.
 
