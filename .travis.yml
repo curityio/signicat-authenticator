@@ -1,2 +1,2 @@
 language: java
-script: mvn -f external-pom.xml -P external clean verify
+script: mvn -B -f external-pom.xml -P external clean verify
