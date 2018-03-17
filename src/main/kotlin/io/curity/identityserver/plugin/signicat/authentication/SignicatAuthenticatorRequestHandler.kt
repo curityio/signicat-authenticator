@@ -65,7 +65,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
 {
     private val logger: Logger = LoggerFactory.getLogger(SignicatAuthenticatorRequestHandler::class.java)
     private val exceptionFactory = config.exceptionFactory
-    private val service = config.serviceName
+    private val serviceName = config.serviceName
     private val graphicsProfile = config.graphicsProfile
     private val country = config.country
     private val useSigning = config.useSigning
@@ -125,14 +125,14 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             
             if (username != null)
             {
-                val (requestId, taskId) = getSigningInfo(service, preferredLanguage, graphicsProfile, target, username)
+                val (requestId, taskId) = getSigningInfo(serviceName, preferredLanguage, graphicsProfile, target, username)
     
                 sessionManager.put(Attribute.of(REQUEST_ID_SESSION_KEY, requestId))
                 sessionManager.put(Attribute.of(USER_ID_SESSION_KEY, username))
                 
                 userPreferenceManager.saveUsername(username)
     
-                "https://$environment.signicat.com/std/docaction/$service?request_id=$requestId&task_id=$taskId"
+                "https://$environment.signicat.com/std/docaction/$serviceName?request_id=$requestId&task_id=$taskId"
             }
             else
             {
@@ -165,7 +165,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             graphicsProfile.ifPresent { id += it }
             preferredLanguage.ifPresent { id += ":it" }
         
-            "https://$environment.signicat.com/std/method/$service?id=$id&target=$target"
+            "https://$environment.signicat.com/std/method/$serviceName?id=$id&target=$target"
         }
         
         // Use a 303 in case this a POST request, so that the user agent is guaranteed (by compliance with HTTP) to
