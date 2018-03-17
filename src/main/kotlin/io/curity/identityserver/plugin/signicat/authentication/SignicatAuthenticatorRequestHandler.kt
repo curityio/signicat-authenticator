@@ -71,7 +71,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val useSigning = config.useSigning
     private val sessionManager = config.sessionManager
     private val userPreferenceManager = config.userPreferencesManager
-    private val authenticationInformationProvider = config.authenticationInformationProvider
+    private val authenticatorInformationProvider = config.authenticatorInformationProvider
     private val environment = config.environment.customEnvironment.orElseGet {
         config.environment.standardEnvironment.map {
             when (it)
@@ -114,7 +114,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     
     private fun handle(requestModel : RequestModel, response: Response): Optional<AuthenticationResult>
     {
-        val authUrl = authenticationInformationProvider.fullyQualifiedAuthenticationUri
+        val authUrl = authenticatorInformationProvider.fullyQualifiedAuthenticationUri
         val target = URL(authUrl.toURL(), "${authUrl.path}/${SignicatAuthenticatorPluginDescriptor.CALLBACK}")
         
         logger.debug("Redirecting to Signicat with the callback URL of {}", target)
@@ -185,15 +185,15 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                     .orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.PLUGIN_ERROR) }
                     .secret
             request += with(com.signicat.document.v3.Request()) {
-                clientReference = authenticationInformationProvider.fullyQualifiedAuthenticationUri.
-                        path.reversed().split("/").first().reversed() // Authenticator ID
+                val authUrl = authenticatorInformationProvider.fullyQualifiedAuthenticationUri
+                clientReference = authUrl.path.reversed().split("/").first().reversed() // Authenticator ID
                 
                 preferredLanguage.ifPresent { language = it }
                 graphicsProfile.ifPresent { profile = it }
                 
                 task += with(Task()) {
                     id = taskId
-                    onTaskCancel = "$target/cancel"
+                    onTaskCancel = authenticatorInformationProvider.authenticationBaseUri.toString()
                     onTaskComplete = "$target"
                     
                     subject = with(Subject()) {

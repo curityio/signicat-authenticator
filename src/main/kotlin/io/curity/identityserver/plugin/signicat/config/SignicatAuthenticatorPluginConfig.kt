@@ -67,7 +67,7 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     
     val sessionManager : SessionManager
     
-    val authenticationInformationProvider : AuthenticatorInformationProvider
+    val authenticatorInformationProvider: AuthenticatorInformationProvider
 }
 
 enum class PredefinedEnvironment
