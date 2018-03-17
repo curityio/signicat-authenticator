@@ -39,5 +39,5 @@ class SignicatAuthenticatorPluginDescriptor : AuthenticatorPluginDescriptor<Sign
     override fun getConfigurationType(): Class<out SignicatAuthenticatorPluginConfig> =
             SignicatAuthenticatorPluginConfig::class.java
     
-    override fun getPluginImplementationType(): String = "signicat-authenticator"
+    override fun getPluginImplementationType(): String = "signicat"
 }

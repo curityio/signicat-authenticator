@@ -78,10 +78,60 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Implementation-Title>Signica-Authenticator-Plugin</Implementation-Title>
+                            <Implementation-Title>Signicat-Authenticator-Plugin</Implementation-Title>
                             <Implementation-Vendor>Curity AB</Implementation-Vendor>
                         </manifestEntries>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/generated/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>2.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlLocation>/*</wsdlLocation>
+                            <packageName>com.signicat.document.v3</packageName>
+                            <wsdlUrls>
+                                <wsdlUrl>https://preprod.signicat.com/ws/documentservice-v3?wsdl</wsdlUrl>
+                            </wsdlUrls>
+                            <sourceDestDir>${project.basedir}/src/generated/java</sourceDestDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}/src/generated/java</directory>
+                        </fileset>
+                    </filesets>
                 </configuration>
             </plugin>
         </plugins>
