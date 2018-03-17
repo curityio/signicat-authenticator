@@ -87,38 +87,6 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>external</id>
-            <dependencies>
-                <dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>java-connector</artifactId>
-                    <version>${project.version}</version>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>internal</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.signicat</groupId>
-                    <artifactId>java-connector</artifactId>
-                    <version>4.0.1</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.signicat</groupId>
-                    <artifactId>opensaml</artifactId>
-                    <version>1.1-PATCH-6</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
     <dependencies>
         <dependency>
             <groupId>se.curity.identityserver</groupId>
@@ -143,6 +111,11 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.signicat</groupId>
+            <artifactId>java-connector</artifactId>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
