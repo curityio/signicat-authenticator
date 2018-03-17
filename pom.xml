@@ -31,7 +31,7 @@
 
     <groupId>io.curity.identityserver.plugin</groupId>
     <artifactId>identityserver.plugins.authenticators.signicat</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9.1</version>
     <packaging>jar</packaging>
     <name>Signicat Authenticator</name>
 
