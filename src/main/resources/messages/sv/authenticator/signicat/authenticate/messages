@@ -17,8 +17,13 @@
 meta.title=Logga in
 page.title=Logga in
 
-signicat.view.personal-number=Personnummer
-signicat.view.personal-number-placeholder=ååååmmddnnnn
-signicat.view.challenge=Logga in
+view.username=Personnummer
+view.challenge=Logga in
 
-signicat.validation.error.personal-number-invalid=Felaktigt personnummer
+validation.error.username-invalid=Felaktigt personnummer
+
+# These should never happen. It means that a GET request was made to the callback endpoint without the
+# query string parameters that Signicat always provides
+validation.error.samlResponse.required=Ett oväntat tekniskt fel har uppstått. Vänligen kontakta support.
+validation.error.username-not-found=Ett oväntat tekniskt fel har uppstått. Vänligen kontakta support.
+validation.error.request-id-not-found=Ett oväntat tekniskt fel har uppstått. Vänligen kontakta support.

@@ -17,8 +17,13 @@
 meta.title=Login
 page.title=Login
 
-signicat.view.personal-number=Personal number
-signicat.view.personal-number-placeholder=yyyymmddnnnn
-signicat.view.challenge=Login
+view.username=Personal number
+view.challenge=Login
 
-signicat.validation.error.personal-number-invalid=The personal number is invalid
+validation.error.username-invalid=The personal number is invalid
+
+# These should never happen. It means that a GET request was made to the callback endpoint without the
+# query string parameters that Signicat always provides
+validation.error.samlResponse.required=An unexpected technical error has occurred. Please contact support.
+validation.error.username-not-found=An unexpected technical error has occurred. Please contact support.
+validation.error.request-id-not-found=An unexpected technical error has occurred. Please contact support.

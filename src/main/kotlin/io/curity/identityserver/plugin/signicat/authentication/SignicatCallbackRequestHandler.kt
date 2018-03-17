@@ -62,7 +62,6 @@ class GetCallbackRequestModel(sessionManager: SessionManager) : CallbackRequestM
 
 class PostCallbackRequestModel(request: Request) : CallbackRequestModel()
 {
-    // TODO: Add message key
     @NotBlank(message = "validation.error.samlResponse.required")
     val samlResponse: String? = request.getFormParameterValueOrError("SAMLResponse")
     val uri: URL = URL(request.url)
