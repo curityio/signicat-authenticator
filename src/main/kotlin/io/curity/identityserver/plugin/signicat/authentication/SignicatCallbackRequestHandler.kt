@@ -188,6 +188,8 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         val requestModel = model as PostCallbackRequestModel // Safe cast
         val configuration = Properties()
         
+        configuration.setProperty("debug", "${!isProd}") // Only enable debug in non-prod
+    
         if (isProd)
         {
             configuration.setProperty(ASSERTING_PARTY_DN, PROD_DN)
