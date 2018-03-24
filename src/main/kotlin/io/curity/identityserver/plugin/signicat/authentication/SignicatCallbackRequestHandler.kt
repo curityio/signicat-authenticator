@@ -40,7 +40,10 @@ import java.util.Optional
 import java.util.Properties
 import com.signicat.document.v3.GetStatusRequest
 import com.signicat.document.v3.TaskStatus
+import com.signicat.services.client.saml.SamlConfigConstants.CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD
 import se.curity.identityserver.sdk.errors.ErrorCode
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
 
 sealed class CallbackRequestModel
 
@@ -202,6 +205,21 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         }
         
         val samlFacade = SamlFacade(configuration)
+    
+        serverTrustCryptoStore.ifPresent {
+            val stream = ByteArrayOutputStream()
+    
+            ObjectOutputStream(stream).use { out ->
+                out.writeObject(it)
+            }
+    
+            val bytes = stream.toByteArray()
+            
+            samlFacade.setSamlKeystore(bytes)
+            samlFacade.context.configuration.setProperty(CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD,
+                    it.keyStorePassword.joinToString(""))
+        }
+        
         val samlResponseData = samlFacade.readSamlResponse(requestModel.samlResponse, requestModel.uri)
         val subjectAttributes = mutableListOf<Attribute>()
         val contextAttributes = mutableListOf<Attribute>()
