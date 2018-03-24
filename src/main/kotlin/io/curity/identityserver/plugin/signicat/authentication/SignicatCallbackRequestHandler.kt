@@ -73,6 +73,8 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val sessionManager = config.sessionManager
     private val serviceName = config.serviceName
     private val useSigning = config.useSigning
+    private val clientKeyCryptoStore = config.clientKeyCryptoStore
+    private val serverTrustCryptoStore = config.serverTrustCryptoStore
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
@@ -154,7 +156,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     override fun get(model: CallbackRequestModel, response: Response): Optional<AuthenticationResult>
     {
         val requestModel = model as GetCallbackRequestModel // Safe cast
-        val client = SigningClientFactory.create(environment)
+        val client = SigningClientFactory.create(environment, clientKeyCryptoStore, serverTrustCryptoStore)
         val secret = useSigning
                 // For this to throw, the presence of useSigning wasn't checked before. This is a logic error
                 // and should never happen.

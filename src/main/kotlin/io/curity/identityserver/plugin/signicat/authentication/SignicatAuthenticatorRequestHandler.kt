@@ -66,6 +66,8 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val country = config.country
     private val useSigning = config.useSigning
     private val sessionManager = config.sessionManager
+    private val clientKeyCryptoStore = config.clientKeyCryptoStore
+    private val serverTrustCryptoStore = config.serverTrustCryptoStore
     private val userPreferenceManager = config.userPreferencesManager
     private val authenticatorInformationProvider = config.authenticatorInformationProvider
     private val environment = withEnvironment(config)
@@ -217,7 +219,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             this
         }
         
-        val client = SigningClientFactory.create(environment)
+        val client = SigningClientFactory.create(environment, clientKeyCryptoStore, serverTrustCryptoStore)
         val response = client.createRequest(request)
         
         return Pair(response.requestId.get(0), taskId)

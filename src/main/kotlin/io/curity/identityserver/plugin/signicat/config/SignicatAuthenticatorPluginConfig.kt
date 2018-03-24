@@ -26,6 +26,8 @@ import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.service.UserPreferenceManager
 import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
+import se.curity.identityserver.sdk.service.crypto.ClientKeyCryptoStore
+import se.curity.identityserver.sdk.service.crypto.ServerTrustCryptoStore
 import java.util.Optional
 
 interface SignicatAuthenticatorPluginConfig : Configuration
@@ -68,6 +70,10 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val sessionManager : SessionManager
     
     val authenticatorInformationProvider: AuthenticatorInformationProvider
+    
+    val clientKeyCryptoStore: Optional<ClientKeyCryptoStore>
+    
+    val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
 }
 
 enum class PredefinedEnvironment
