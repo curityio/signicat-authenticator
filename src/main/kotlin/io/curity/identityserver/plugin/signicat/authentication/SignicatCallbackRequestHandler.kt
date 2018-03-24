@@ -73,7 +73,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val sessionManager = config.sessionManager
     private val serviceName = config.serviceName
     private val useSigning = config.useSigning
-    private val clientKeyCryptoStore = config.clientKeyCryptoStore
+    private val clientKeyCryptoStore = config.useSigning.flatMap { it.clientKeyCryptoStore }
     private val serverTrustCryptoStore = config.serverTrustCryptoStore
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||

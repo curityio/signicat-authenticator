@@ -66,7 +66,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val country = config.country
     private val useSigning = config.useSigning
     private val sessionManager = config.sessionManager
-    private val clientKeyCryptoStore = config.clientKeyCryptoStore
+    private val clientKeyCryptoStore = config.useSigning.flatMap { it.clientKeyCryptoStore }
     private val serverTrustCryptoStore = config.serverTrustCryptoStore
     private val userPreferenceManager = config.userPreferencesManager
     private val authenticatorInformationProvider = config.authenticatorInformationProvider

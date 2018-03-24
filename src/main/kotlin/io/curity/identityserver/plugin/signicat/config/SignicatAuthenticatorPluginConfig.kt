@@ -65,13 +65,13 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     {
         @get:Description("The client secret used to authenticate to the Signicat signing service")
         val secret : String
+    
+        val clientKeyCryptoStore: Optional<ClientKeyCryptoStore>
     }
     
     val sessionManager : SessionManager
     
     val authenticatorInformationProvider: AuthenticatorInformationProvider
-    
-    val clientKeyCryptoStore: Optional<ClientKeyCryptoStore>
     
     val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
 }
