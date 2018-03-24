@@ -24,4 +24,9 @@ public class SamlFacade
     {
         throw new UnsupportedOperationException();
     }
+
+    public void setSamlKeystore(byte[] ignored)
+    {
+        throw new UnsupportedOperationException();
+    }
 }
