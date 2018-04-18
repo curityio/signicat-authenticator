@@ -26,6 +26,7 @@ To install this plug-in, either download a binary version available from the `re
 * signicat-client-lib-4.0.1.jar
 * signicat-opensaml-1.1-PATCH-6.jar
 * commons-codec-1.10.jar
+* commons-logging-1.2.jar
 * xmlsec-1.5.8.jar
 
 All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
