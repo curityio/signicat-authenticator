@@ -19,23 +19,23 @@
          xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--<repositories>-->
-        <!--<repository>-->
-            <!--<id>customer-release-repo</id>-->
-            <!--<url>https://nexus.curity.se/nexus/content/repositories/customer-release-repo</url>-->
-            <!--<snapshots>-->
-                <!--<enabled>false</enabled>-->
-            <!--</snapshots>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>customer-snapshot-repo</id>-->
-            <!--<name>Customer Snapshot Repository</name>-->
-            <!--<url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo/</url>-->
-            <!--<releases>-->
-                <!--<enabled>false</enabled>-->
-            <!--</releases>-->
-        <!--</repository>-->
-    <!--</repositories>-->
+    <repositories>
+        <repository>
+            <id>customer-release-repo</id>
+            <url>https://nexus.curity.se/nexus/content/repositories/customer-release-repo</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>customer-snapshot-repo</id>
+            <name>Customer Snapshot Repository</name>
+            <url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <groupId>io.curity.identityserver.plugin</groupId>
     <artifactId>identityserver.plugins.authenticators.signicat</artifactId>
