@@ -33,7 +33,7 @@ To install this plug-in, either download a binary version available from the `re
 * commons-logging-1.1.1.jar
 * xmlsec-1.5.8.jar
 
-All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
+All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://developer.signicat.com/documentation/other/signicat-connector-for-java/>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
 
 .. note::
 
