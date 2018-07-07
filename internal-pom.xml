@@ -19,24 +19,6 @@
          xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
 
-    <repositories>
-        <repository>
-            <id>customer-release-repo</id>
-            <url>https://nexus.curity.se/nexus/content/repositories/customer-release-repo</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>customer-snapshot-repo</id>
-            <name>Customer Snapshot Repository</name>
-            <url>https://nexus.curity.se/nexus/content/repositories/customer-snapshot-repo/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <groupId>io.curity.identityserver.plugin</groupId>
     <artifactId>identityserver.plugins.authenticators.signicat</artifactId>
     <version>1.0.0</version>
@@ -201,15 +183,15 @@
             <artifactId>xmlsec</artifactId>
             <version>1.5.8</version>
         </dependency>
-
-        <!-- This dependency points to the java-connector/ stubs that should be used only to compile this plugin.
-             Do not include this jar in the server runtime, contact Signicat to get the real jar as explained in
-             the README page. -->
         <dependency>
             <groupId>com.signicat</groupId>
             <artifactId>java-connector</artifactId>
             <version>4.0.1</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.signicat</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>1.1-PATCH-6</version>
         </dependency>
     </dependencies>
 </project>
