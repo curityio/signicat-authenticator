@@ -52,7 +52,7 @@ class SigningClientFactory
         private val JAXWS_PROPERTIES_REQUEST_TIMEOUT = "com.sun.xml.ws.request.timeout"
     
         fun create(environment: String, clientKeyCryptoStore: Optional<ClientKeyCryptoStore>,
-                   trustStore : Optional<ServerTrustCryptoStore>): DocumentEndPoint
+                   trustStore: Optional<ServerTrustCryptoStore>): DocumentEndPoint
         {
             val client = DocumentService()
             val port = client.documentServiceEndPointPort

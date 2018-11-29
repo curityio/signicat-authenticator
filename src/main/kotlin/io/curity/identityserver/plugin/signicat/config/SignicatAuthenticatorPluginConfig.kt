@@ -74,6 +74,8 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val authenticatorInformationProvider: AuthenticatorInformationProvider
     
     val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
+
+    val serviceHelper: AuthenticatorInformationProvider
 }
 
 enum class PredefinedEnvironment

@@ -16,6 +16,10 @@
 
 package io.curity.identityserver.plugin.signicat.authentication
 
+import com.signicat.document.v3.GetStatusRequest
+import com.signicat.document.v3.TaskStatus
+import com.signicat.services.client.ScResponseException
+import com.signicat.services.client.saml.SamlConfigConstants.CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD
 import com.signicat.services.client.saml.SamlFacade
 import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
@@ -32,18 +36,15 @@ import se.curity.identityserver.sdk.attribute.ContextAttributes
 import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
+import se.curity.identityserver.sdk.errors.ErrorCode
 import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
+import java.io.ByteArrayOutputStream
+import java.io.ObjectOutputStream
 import java.net.URL
 import java.util.Optional
 import java.util.Properties
-import com.signicat.document.v3.GetStatusRequest
-import com.signicat.document.v3.TaskStatus
-import com.signicat.services.client.saml.SamlConfigConstants.CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD
-import se.curity.identityserver.sdk.errors.ErrorCode
-import java.io.ByteArrayOutputStream
-import java.io.ObjectOutputStream
 
 sealed class CallbackRequestModel
 
@@ -82,6 +83,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
     private val environment = withEnvironment(config)
+    private val serviceHelper = config.serviceHelper
     private val allSubjectAttributeNames = setOf(
             "age",
             "age-class",
@@ -190,7 +192,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     {
         val requestModel = model as PostCallbackRequestModel // Safe cast
         val configuration = Properties()
-        
+
         configuration.setProperty("debug", "${!isProd}") // Only enable debug in non-prod
     
         if (isProd)
@@ -205,22 +207,29 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         }
         
         val samlFacade = SamlFacade(configuration)
-    
-        serverTrustCryptoStore.ifPresent {
+
+
+        serverTrustCryptoStore.ifPresent { store ->
             val stream = ByteArrayOutputStream()
     
             ObjectOutputStream(stream).use { out ->
-                out.writeObject(it)
+                out.writeObject(store)
             }
     
             val bytes = stream.toByteArray()
             
             samlFacade.setSamlKeystore(bytes)
             samlFacade.context.configuration.setProperty(CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD,
-                    it.keyStorePassword.joinToString(""))
+                    store.keyStorePassword.joinToString(""))
         }
-        
-        val samlResponseData = samlFacade.readSamlResponse(requestModel.samlResponse, requestModel.uri)
+
+        val samlResponseData = try {
+            samlFacade.readSamlResponse(requestModel.samlResponse, requestModel.uri)
+        } catch (sre: ScResponseException)
+        {
+            throw exceptionFactory.redirectException(serviceHelper.authenticationBaseUri.toString())
+        }
+
         val subjectAttributes = mutableListOf<Attribute>()
         val contextAttributes = mutableListOf<Attribute>()
         
