@@ -21,7 +21,7 @@ import com.signicat.document.v3.DocumentService
 import org.apache.commons.codec.CharEncoding
 import org.slf4j.LoggerFactory
 import se.curity.identityserver.sdk.service.crypto.ClientKeyCryptoStore
-import se.curity.identityserver.sdk.service.crypto.SignerTrustCryptoStore
+import se.curity.identityserver.sdk.service.crypto.ServerTrustCryptoStore
 import java.io.ByteArrayOutputStream
 import java.util.Optional
 import javax.net.ssl.KeyManagerFactory
@@ -52,7 +52,7 @@ class SigningClientFactory
         private val JAXWS_PROPERTIES_REQUEST_TIMEOUT = "com.sun.xml.ws.request.timeout"
     
         fun create(environment: String, clientKeyCryptoStore: Optional<ClientKeyCryptoStore>,
-                   trustStore : Optional<SignerTrustCryptoStore>): DocumentEndPoint
+                   trustStore : Optional<ServerTrustCryptoStore>): DocumentEndPoint
         {
             val client = DocumentService()
             val port = client.documentServiceEndPointPort
