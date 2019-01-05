@@ -41,15 +41,15 @@ class SigningClientFactory
         private val logger = LoggerFactory.getLogger(SigningClientFactory::class.java)
     
         // Generous timeouts; we only want to make sure that the requesting thread isn't consumed indefinitely.
-        private val CONNECT_TIMEOUT = 3000
-        private val REQUEST_TIMEOUT = 10000
+        private const val CONNECT_TIMEOUT = 3000
+        private const val REQUEST_TIMEOUT = 10000
     
-        private val JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL = "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory"
-        private val JAXWS_PROPERTIES_SSL_SOCKET_FACTORY = "com.sun.xml.ws.transport.https.client.SSLSocketFactory"
-        private val JAXWS_PROPERTIES_CONNECT_TIMEOUT_INTERNAL = "com.sun.xml.internal.ws.connect.timeout"
-        private val JAXWS_PROPERTIES_CONNECT_TIMEOUT = "com.sun.xml.ws.connect.timeout"
-        private val JAXWS_PROPERTIES_REQUEST_TIMEOUT_INTERNAL = "com.sun.xml.internal.ws.request.timeout"
-        private val JAXWS_PROPERTIES_REQUEST_TIMEOUT = "com.sun.xml.ws.request.timeout"
+        private const val JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL = "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory"
+        private const val JAXWS_PROPERTIES_SSL_SOCKET_FACTORY = "com.sun.xml.ws.transport.https.client.SSLSocketFactory"
+        private const val JAXWS_PROPERTIES_CONNECT_TIMEOUT_INTERNAL = "com.sun.xml.internal.ws.connect.timeout"
+        private const val JAXWS_PROPERTIES_CONNECT_TIMEOUT = "com.sun.xml.ws.connect.timeout"
+        private const val JAXWS_PROPERTIES_REQUEST_TIMEOUT_INTERNAL = "com.sun.xml.internal.ws.request.timeout"
+        private const val JAXWS_PROPERTIES_REQUEST_TIMEOUT = "com.sun.xml.ws.request.timeout"
     
         fun create(environment: String, clientKeyCryptoStore: Optional<ClientKeyCryptoStore>,
                    trustStore: Optional<ServerTrustCryptoStore>): DocumentEndPoint
