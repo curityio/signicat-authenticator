@@ -21,11 +21,30 @@
     <groupId>com.signicat</groupId>
     <artifactId>java-connector</artifactId>
     <version>4.0.1</version>
+    <description>Stub implementation of Signicat SDK required to compile the Curity Plugin.</description>
+    <packaging>jar</packaging>
 
-    <parent>
-        <groupId>io.curity.identityserver.plugin</groupId>
-        <artifactId>identityserver.plugins.authenticators.signicat-external</artifactId>
-        <version>0.9.1</version>
-        <relativePath>../external-pom.xml</relativePath>
-    </parent>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <mode>development</mode>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

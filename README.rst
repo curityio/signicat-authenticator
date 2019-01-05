@@ -11,28 +11,31 @@ This project provides an open source Signicat Authenticator plug-in for the Curi
 System Requirements
 ~~~~~~~~~~~~~~~~~~~
 
-Curity Identity Server 2.4.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
+Curity Identity Server 3.4.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
 
 Requirements for Building from Source
 """""""""""""""""""""""""""""""""""""
 
-The source code is written entirely in `Kotlin <http://kotlinlang.org/>`_. It can be compiled using Maven 3. For this to succeed, however, the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_ needs to be installed into a Maven repository which is accessible during compilation. The `POM <pom.xml>`_ may need to be updated depending on the Maven Coordinates (Group, Artifact, Version) used during installation. Refer to the `Maven guide for information about installing third-party JARs <https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html>`_. Once the Signicat Connector's JAR and its associated OpenSAML version are installed, the project can be compiled from a shell by issuing a command like this: ``mvn package``.
+The source code is written entirely in `Kotlin <http://kotlinlang.org/>`_. It can be compiled using Maven 3.
+For this to succeed, however, the `Signicat Connector for Java`_ needs to be installed into a Maven repository which is accessible during compilation.
+A stub implementation of that library is available under the ``java-connector/`` directory. Run ``mvn -f java-connector/pom.xml install`` to install the stub JAR in the local Maven repository. Refer to the `Maven guide for information about installing third-party JARs <https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html>`_. Once the Signicat Connector's JARs are installed, the project can be compiled from a shell by issuing a command like this: ``mvn package``.
 
 Installation
 ~~~~~~~~~~~~
 
-To install this plug-in, either download a binary version available from the `releases section of this project's GitHub repository <https://github.com/curityio/signicat-authenticator/releases>`_ or compile it from source (as described above). If you compiled the plug-in from source, the package will be placed in the ``target`` subdirectory. The resulting JAR file or the one downloaded from GitHub needs to placed in the directory ``${IDSVR_HOME}/usr/share/plugins/signicat``. (The name of the last directory, ``signicat``, which is the plug-in group, is arbitrary and can be anything.) All of the dependent JAR files must be placed in this directory as well. These include:
+To install this plug-in, either download a binary version available from the `releases section of this project's GitHub repository <https://github.com/curityio/signicat-authenticator/releases>`_ or compile it from source (as described above). If you compiled the plug-in from source, the package will be placed in the ``target/libs`` subdirectory. The resulting JAR file or the one downloaded from GitHub needs to placed in the directory ``${IDSVR_HOME}/usr/share/plugins/signicat``. (The name of the last directory, ``signicat``, which is the plug-in group, is arbitrary and can be anything.) All of the dependent JAR files must be placed in this directory as well. These include:
 
 * signicat-client-lib-4.0.1.jar
 * signicat-opensaml-1.1-PATCH-6.jar
 * commons-codec-1.10.jar
+* commons-logging-1.2.jar
 * xmlsec-1.5.8.jar
 
-All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://support.signicat.com/display/S2/Signicat+Connector+for+Java>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
+All of these JAR files can be obtained by downloading the `Signicat Connector for Java`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
 
 .. note::
 
-    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, and *should not* be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
+    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J). These are not required by this plug-in, and *should not* be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
 
 Once the plug-in and its dependencies are placed into the plug-in group directory, it will become available as soon as each node is restarted.
 
@@ -45,10 +48,10 @@ During development of the plug-in, it is very easy to copy the plug-in JAR and i
 
 .. code:: bash
 
-    mvn install dependency:copy-dependencies \
+    mvn dependency:copy-dependencies \
         -DincludeScope=runtime \
-        -DoutputDirectory=$IDSVR_HOME/lib/plugins/signicat && \
-        cp target/identityserver.plugins.authenticators.signicat-*.jar $IDSVR_HOME/lib/plugins/signicat
+        -DoutputDirectory=$IDSVR_HOME/usr/share/plugins/signicat && \
+        cp target/libs/identityserver.plugins.authenticators.signicat-*.jar $IDSVR_HOME/usr/share/plugins/signicat
 
 Because the server must be restarted after this, it can be quite tedious and time consuming. For that reason, it is better to use `Intellij's HotSwap capability <https://www.jetbrains.com/help/idea/reloading-classes.html>`_ to reload the classes after compilation. This will allow a developer to HotSwap changes without requiring a restart. If it fails to HotSwap some change, however, the above technique can be used.
 
@@ -73,7 +76,7 @@ The easiest way to configure a new Signicat authenticator is using the Curity ad
 
         The Signicat-specific configuration is generated dynamically based on the `configuration model defined in the Kotlin interface <https://github.com/curityio/signicat-authenticator/blob/master/src/main/kotlin/io/curity/identityserver/plugin/signicat/config/SignicatAuthenticatorPluginConfig.kt>`_.
 
-6. From the ``Country`` dropdown box, pick the country's kind of E-ID that should be used. For example, pick ``sweden`` to use Swedish BankID or ``denmark`` to use NemID.
+6. From the ``Method`` combobox, pick the country's kind of E-ID that should be used or type one of your own. For example, pick ``sbid`` to use Swedish BankID, ``nemid`` to use NemID, or ``cust`` for some custom E-ID method provided by Signicat.
 7. Enter the ``Service Name`` that you have registered with Signicat or use the default of ``demo`` for testing.
 8. From the ``Environment`` dropdown box, select either ``standard-environment`` or ``custom-environment``. The former should be used if you are not using a custom domain (e.g., ``signicat.example.com``). If not, then select ``standard-environment`` and pick either ``production`` or ``pre-production``. ``pre-production`` will cause certain test certificates to be used and warnings to be logged in the server log.
 9. Optionally, enter the name of a `graphics profile <https://support.signicat.com/display/S2/Graphical+profiles%2C+fonts+and+styling>`_ in the ``Graphics Profile`` text field.
@@ -98,3 +101,5 @@ More Information
 Please visit `curity.io <https://curity.io/>`_ for more information about the Curity Identity Server.
 
 Copyright (C) 2018 Curity AB.
+
+.. _Signicat Connector for Java: https://developer.signicat.com/documentation/other/signicat-connector-for-java/
