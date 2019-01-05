@@ -37,6 +37,7 @@ import se.curity.identityserver.sdk.attribute.SubjectAttributes
 import se.curity.identityserver.sdk.authentication.AuthenticationResult
 import se.curity.identityserver.sdk.authentication.AuthenticatorRequestHandler
 import se.curity.identityserver.sdk.errors.ErrorCode
+import se.curity.identityserver.sdk.http.RedirectStatusCode
 import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.web.Request
 import se.curity.identityserver.sdk.web.Response
@@ -83,7 +84,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
     private val environment = withEnvironment(config)
-    private val serviceHelper = config.serviceHelper
+    private val authenticatorInformationProvider = config.authenticatorInformationProvider
     private val allSubjectAttributeNames = setOf(
             "age",
             "age-class",
@@ -211,11 +212,11 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
 
         serverTrustCryptoStore.ifPresent { store ->
             val stream = ByteArrayOutputStream()
-    
+
             ObjectOutputStream(stream).use { out ->
                 out.writeObject(store)
             }
-    
+
             val bytes = stream.toByteArray()
             
             samlFacade.setSamlKeystore(bytes)
@@ -225,9 +226,10 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
 
         val samlResponseData = try {
             samlFacade.readSamlResponse(requestModel.samlResponse, requestModel.uri)
-        } catch (sre: ScResponseException)
-        {
-            throw exceptionFactory.redirectException(serviceHelper.authenticationBaseUri.toString())
+        }
+        catch (e: ScResponseException) {
+            throw exceptionFactory.redirectException(authenticatorInformationProvider.authenticationBaseUri,
+                    RedirectStatusCode.MOVED_TEMPORARILY, emptyMap(), false)
         }
 
         val subjectAttributes = mutableListOf<Attribute>()
