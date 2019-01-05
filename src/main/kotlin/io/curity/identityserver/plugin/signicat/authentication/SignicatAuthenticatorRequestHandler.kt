@@ -221,6 +221,6 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         val client = SigningClientFactory.create(environment, clientKeyCryptoStore, Optional.empty())
         val response = client.createRequest(request)
         
-        return Pair(response.requestId.get(0), taskId)
+        return Pair(response.requestId[0], taskId)
     }
 }
