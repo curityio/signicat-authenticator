@@ -181,7 +181,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         val taskStatusInfo = client.getStatus(request)
         
         return if (taskStatusInfo.taskStatusInfo.size > 0 &&
-                taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED)
+                taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED.value())
             Optional.of(AuthenticationResult(requestModel.username))
         else
             Optional.empty()
