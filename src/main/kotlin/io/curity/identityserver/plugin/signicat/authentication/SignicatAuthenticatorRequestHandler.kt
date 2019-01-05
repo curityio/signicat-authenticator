@@ -24,7 +24,6 @@ import com.signicat.document.v3.Method
 import com.signicat.document.v3.ProvidedDocument
 import com.signicat.document.v3.Subject
 import com.signicat.document.v3.Task
-import io.curity.identityserver.plugin.signicat.config.Country
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
 import io.curity.identityserver.plugin.signicat.descriptor.SignicatAuthenticatorPluginDescriptor
 import io.curity.identityserver.plugin.signicat.signing.SigningClientFactory
@@ -63,7 +62,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     private val exceptionFactory = config.exceptionFactory
     private val serviceName = config.serviceName
     private val graphicsProfile = config.graphicsProfile
-    private val country = config.country
+    private val method = config.method
     private val useSigning = config.useSigning
     private val sessionManager = config.sessionManager
     private val clientKeyCryptoStore = config.useSigning.flatMap { it.clientKeyCryptoStore }
@@ -137,14 +136,6 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
         }
         else
         {
-            val method = when (country)
-            {
-                Country.SWEDEN  -> "sbid"
-                Country.DENMARK -> "nemid"
-                Country.ESTONIA -> "esteid"
-                Country.FINLAND -> "tupas"
-                Country.NORWAY  -> "nbid"
-            }
             var id = "$method:"
         
             graphicsProfile.ifPresent { id += it }
@@ -199,14 +190,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                     }
                     authenticationBasedSignature += with(AuthenticationBasedSignature()) {
                         method += with(Method()) {
-                            value = when (country)
-                            {
-                                Country.SWEDEN  -> "sbid"
-                                Country.DENMARK -> "nemid"
-                                Country.ESTONIA -> "esteid"
-                                Country.FINLAND -> "tupas"
-                                Country.NORWAY  -> "nbid"
-                            }
+                            value = this@SignicatAuthenticatorRequestHandler.method
                             this
                         }
                         this

@@ -18,10 +18,10 @@ package io.curity.identityserver.plugin.signicat.config
 
 import se.curity.identityserver.sdk.config.Configuration
 import se.curity.identityserver.sdk.config.OneOf
-import se.curity.identityserver.sdk.config.annotation.DefaultEnum
 import se.curity.identityserver.sdk.config.annotation.DefaultOption
 import se.curity.identityserver.sdk.config.annotation.DefaultString
 import se.curity.identityserver.sdk.config.annotation.Description
+import se.curity.identityserver.sdk.config.annotation.Suggestions
 import se.curity.identityserver.sdk.service.ExceptionFactory
 import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.service.UserPreferenceManager
@@ -36,10 +36,11 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val exceptionFactory: ExceptionFactory
     
     val userPreferencesManager : UserPreferenceManager
-    
-    @get:Description("A country's type of authentication which should be used (e.g., Swedish BankID or Danish NemID)")
-    @get:DefaultEnum("SWEDEN")
-    val country: Country
+
+    @get:Description("The kind of E-ID that the user should use when logging in")
+    @get:Suggestions("sbid", "nemid", "nbid", "tupas", "esteid")
+    @get:DefaultString("sbid")
+    val method: String
     
     @get:Description("The service that has been registered with Signicat")
     @get:DefaultString("demo")
@@ -86,22 +87,4 @@ enum class PredefinedEnvironment
     
     @Description("The production environment should be use")
     PRODUCTION
-}
-
-enum class Country
-{
-    @Description("Require that the user login with Swedish BankID")
-    SWEDEN,
-    
-    @Description("Require that the user login with Danish NemID")
-    DENMARK,
-    
-    @Description("Require that the user login with Finish Tupas")
-    FINLAND,
-    
-    @Description("Require that the user login with Norwegian BankID")
-    NORWAY,
-    
-    @Description("Require that the user login with an Estonian E-ID")
-    ESTONIA
 }
