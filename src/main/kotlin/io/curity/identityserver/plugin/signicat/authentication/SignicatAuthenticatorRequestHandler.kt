@@ -139,7 +139,7 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
             var id = "$method:"
         
             graphicsProfile.ifPresent { id += it }
-            preferredLanguage.ifPresent { id += ":it" }
+            preferredLanguage.ifPresent { id += ":$it" }
         
             "https://$environment/std/method/$serviceName?id=$id&target=$target"
         }
