@@ -11,7 +11,7 @@ This project provides an open source Signicat Authenticator plug-in for the Curi
 System Requirements
 ~~~~~~~~~~~~~~~~~~~
 
-Curity Identity Server 3.0.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
+Curity Identity Server 3.4.0 and `its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html>`_
 
 Requirements for Building from Source
 """""""""""""""""""""""""""""""""""""
@@ -30,14 +30,14 @@ To install this plug-in, either download a binary version available from the `re
 * signicat-client-lib-4.0.1.jar
 * signicat-opensaml-1.1-PATCH-6.jar
 * commons-codec-1.10.jar
-* commons-logging-1.1.1.jar
+* commons-logging-1.2.jar
 * xmlsec-1.5.8.jar
 
 All of these JAR files can be obtained by downloading the `Signicat Connector for Java <https://developer.signicat.com/documentation/other/signicat-connector-for-java/>`_. Apache Commons Codec and Apache Santuario can also be downloaded from Maven central or their respective project web sites.
 
 .. note::
 
-    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J, Apache Commons Logging, etc.). These are not required by this plug-in, and *should not* be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
+    The Signicat Connector ZIP file contains other JAR files as well (e.g., SLF4J). These are not required by this plug-in, and *should not* be installed. Including SLF4J in particular will cause an error on startup. If you get such an error, ensure that only the above dependencies are copied to the plug-in group directory.
 
 Once the plug-in and its dependencies are placed into the plug-in group directory, it will become available as soon as each node is restarted.
 

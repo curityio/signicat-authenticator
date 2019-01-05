@@ -80,6 +80,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
     private val useSigning = config.useSigning
     private val clientKeyCryptoStore = config.useSigning.flatMap { it.clientKeyCryptoStore }
     private val serverTrustCryptoStore = config.serverTrustCryptoStore
+    private val signerTrustCryptoStore = config.signerTrustCryptoStore
     private val logger: Logger = LoggerFactory.getLogger(SignicatCallbackRequestHandler::class.java)
     private val isProd = config.environment.customEnvironment.isPresent ||
             config.environment.standardEnvironment.map { it == PredefinedEnvironment.PRODUCTION }.orElse(false)
@@ -209,12 +210,11 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         
         val samlFacade = SamlFacade(configuration)
 
-
-        serverTrustCryptoStore.ifPresent { store ->
+        signerTrustCryptoStore.ifPresent { store ->
             val stream = ByteArrayOutputStream()
 
             ObjectOutputStream(stream).use { out ->
-                out.writeObject(store)
+                out.writeObject(store.asKeyStore)
             }
 
             val bytes = stream.toByteArray()
