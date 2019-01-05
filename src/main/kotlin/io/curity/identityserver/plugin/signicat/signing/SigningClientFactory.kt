@@ -24,6 +24,7 @@ import se.curity.identityserver.sdk.service.crypto.ClientKeyCryptoStore
 import se.curity.identityserver.sdk.service.crypto.ServerTrustCryptoStore
 import java.io.ByteArrayOutputStream
 import java.util.Optional
+import javax.net.ssl.KeyManager
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -63,32 +64,34 @@ class SigningClientFactory
             logger.debug("Using Signing Service endpoint: $endpoint")
             
             bindingProvider.requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint)
-            
+
+            val sslContext = SSLContext.getInstance("TLS")
+            var trustManagers : Array<TrustManager>? = null
+            var keyManagers : Array<KeyManager>? = null
+
+            trustStore.ifPresent {
+                val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+
+                trustManagerFactory.init(it.asKeyStore)
+                trustManagers = trustManagerFactory.trustManagers
+            }
+
             clientKeyCryptoStore.ifPresent {
-                val sslContext = SSLContext.getInstance("TLS")
-                var trustManagers : Array<TrustManager>? = null
-                
-                trustStore.ifPresent {
-                    val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-                    
-                    trustManagerFactory.init(it.asKeyStore)
-                    trustManagers = trustManagerFactory.trustManagers
-                }
-    
                 val keyManagerFactory = KeyManagerFactory.getInstance("X509")
                 
                 keyManagerFactory.init(it.asKeyStore, it.keyStorePassword)
                 
-                val keyManagers = keyManagerFactory.getKeyManagers()
-    
-                sslContext.init(keyManagers, trustManagers, null)
-    
-                val sslSocketFactory = sslContext.socketFactory
-                
-                bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY, sslSocketFactory)
-                bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL, sslSocketFactory)
+                keyManagers = keyManagerFactory.getKeyManagers()
             }
 
+            if (trustManagers != null || keyManagers != null) {
+                sslContext.init(keyManagers, trustManagers, null)
+            }
+
+            val sslSocketFactory = sslContext.socketFactory
+
+            bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY, sslSocketFactory)
+            bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL, sslSocketFactory)
         
             bindingProvider.requestContext.put(JAXWS_PROPERTIES_CONNECT_TIMEOUT, CONNECT_TIMEOUT)
             bindingProvider.requestContext.put(JAXWS_PROPERTIES_CONNECT_TIMEOUT_INTERNAL, CONNECT_TIMEOUT)
