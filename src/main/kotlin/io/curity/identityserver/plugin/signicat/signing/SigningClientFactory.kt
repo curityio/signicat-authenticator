@@ -86,13 +86,12 @@ class SigningClientFactory
 
             if (trustManagers != null || keyManagers != null) {
                 sslContext.init(keyManagers, trustManagers, null)
+                val sslSocketFactory = sslContext.socketFactory
+
+                bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY, sslSocketFactory)
+                bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL, sslSocketFactory)
             }
 
-            val sslSocketFactory = sslContext.socketFactory
-
-            bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY, sslSocketFactory)
-            bindingProvider.requestContext.put(JAXWS_PROPERTIES_SSL_SOCKET_FACTORY_INTERNAL, sslSocketFactory)
-        
             bindingProvider.requestContext.put(JAXWS_PROPERTIES_CONNECT_TIMEOUT, CONNECT_TIMEOUT)
             bindingProvider.requestContext.put(JAXWS_PROPERTIES_CONNECT_TIMEOUT_INTERNAL, CONNECT_TIMEOUT)
             bindingProvider.requestContext.put(JAXWS_PROPERTIES_REQUEST_TIMEOUT, REQUEST_TIMEOUT)
