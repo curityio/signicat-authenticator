@@ -188,3 +188,18 @@ class TamperedWithSamlResponseIsNotAccepted_NotOnOrAfter_Test : BehaviorSpec({
         }
     }
 })
+
+class TamperedWithSamlResponseIsNotAccepted_Subject_Test : BehaviorSpec({
+    given("A tampered with SAML response signed with Signicat's certificate") {
+        `when`("A tampered with (Subject) response is read") {
+            val readResponse = {
+                readSamlResponse("/tampered-Subject-response.xml", externalSignicatPemResource)
+            }
+
+            then("An error occurs due to the message signature not matching") {
+                val error = shouldThrow<ScSecurityException>(readResponse)
+                error.message.shouldContain("Failed while verifying SAML response signature")
+            }
+        }
+    }
+})
