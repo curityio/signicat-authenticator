@@ -62,8 +62,11 @@ internal fun SignerTrustCryptoStore.convertToJksByteArray(): ByteArray
  */
 internal fun SignerTrustCryptoStore.convertToJks(): KeyStore
 {
+    val keyStore = asKeyStore
+    if (keyStore.type == "jks") return keyStore
+
     val stream = ByteArrayOutputStream()
-    asKeyStore.store(stream, keyStorePassword)
+    keyStore.store(stream, keyStorePassword)
     val newStore = KeyStore.getInstance("jks")
     newStore.load(null, keyStorePassword)
     newStore.setCertificateEntry(keyStoreAlias, certificate)

@@ -6,9 +6,12 @@ import com.signicat.services.client.saml.SamlConfigConstants
 import com.signicat.services.client.saml.SamlFacade
 import com.signicat.services.client.saml.SamlResponseData
 import io.kotlintest.matchers.string.shouldContain
+import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.BehaviorSpec
-import java.io.ByteArrayInputStream
+import io.mockk.every
+import io.mockk.mockk
+import se.curity.identityserver.sdk.service.crypto.SignerTrustCryptoStore
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.URL
@@ -27,8 +30,8 @@ fun parseCertificateFromPem(inputStream: InputStream): X509Certificate {
     return CertificateFactory.getInstance("X.509").generateCertificate(inputStream) as X509Certificate
 }
 
-fun wrapIntoKeystore(cert: X509Certificate, pass: String = keystorePass): KeyStore {
-    val keystore = KeyStore.getInstance("jks")
+fun wrapIntoKeystore(cert: X509Certificate, pass: String = keystorePass, type: String = "jks"): KeyStore {
+    val keystore = KeyStore.getInstance(type)
     keystore.load(null, pass.toCharArray())
     keystore.setCertificateEntry("default", cert)
     return keystore
@@ -61,6 +64,55 @@ fun readSamlResponse(responseXmlResource: String, pemResource: String): SamlResp
 
     return samlFacade.readSamlResponse(base64SamlResponse, URL(signicatAuthenticatorUrl))
 }
+
+class CanConvertCertificateKeystoreToJksTest : BehaviorSpec({
+    given("A X509 Certificate imported into a Keystore that is not JKS") {
+        val certificate = SamlResponseCanBeParsedTest::class.java
+                .getResource(preProdSignicatPemResource)!!.openStream().use {
+            parseCertificateFromPem(it)
+        }
+
+        val pkcsKeystore = wrapIntoKeystore(certificate, "pass", "PKCS12")
+
+        val cryptoStore = mockk<SignerTrustCryptoStore>() {
+            every { getCertificate() } returns certificate
+            every { keyStorePassword } returns "pass".toCharArray()
+            every { asKeyStore } returns pkcsKeystore
+            every { keyStoreAlias } returns "default"
+        }
+
+        `when`("The Keystore is converted into JKS") {
+            val jks = cryptoStore.convertToJks()
+
+            then("the JKS should contain the same certificate") {
+                jks.getCertificate("default") == certificate
+            }
+        }
+    }
+})
+
+class JksKeystoreDoesNotRequireConvertionTest : BehaviorSpec({
+    given("A JKS Keystore with a certificate in it") {
+        val certificate = SamlResponseCanBeParsedTest::class.java
+                .getResource(preProdSignicatPemResource)!!.openStream().use {
+            parseCertificateFromPem(it)
+        }
+
+        val jksStore = wrapIntoKeystore(certificate, "pass", "jks")
+
+        val cryptoStore = mockk<SignerTrustCryptoStore>() {
+            every { asKeyStore } returns jksStore
+        }
+
+        `when`("The Keystore is converted into JKS") {
+            val jks = cryptoStore.convertToJks()
+
+            then("the JKS should be just returned as it is") {
+                jks shouldBeSameInstanceAs jksStore
+            }
+        }
+    }
+})
 
 class SamlResponseCanBeParsedTest : BehaviorSpec({
     given("A SAML response signed with Signicat's certificate") {
