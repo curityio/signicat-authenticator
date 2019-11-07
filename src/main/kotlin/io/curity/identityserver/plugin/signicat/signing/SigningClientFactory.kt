@@ -77,7 +77,7 @@ class SigningClientFactory
             }
 
             clientKeyCryptoStore.ifPresent {
-                val keyManagerFactory = KeyManagerFactory.getInstance("X509")
+                val keyManagerFactory = KeyManagerFactory.getInstance("PKIX")
                 
                 keyManagerFactory.init(it.asKeyStore, it.keyStorePassword)
                 

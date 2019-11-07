@@ -35,6 +35,7 @@
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 
         <plugins>
             <plugin>
@@ -146,13 +147,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <!-- Fork each test so Signicat will not complain about parsing the same SAML message more than once -->
+                    <forkCount>1C</forkCount>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
         <dependency>
             <groupId>se.curity.identityserver</groupId>
             <artifactId>identityserver.sdk</artifactId>
-            <version>3.0.0</version>
+            <version>3.4.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -206,5 +217,19 @@
             <artifactId>opensaml</artifactId>
             <version>1.1-PATCH-6</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>1.3.50</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.kotlintest</groupId>
+            <artifactId>kotlintest-runner-junit5</artifactId>
+            <version>3.3.2</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

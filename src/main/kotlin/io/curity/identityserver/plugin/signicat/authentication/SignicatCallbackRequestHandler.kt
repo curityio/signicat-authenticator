@@ -53,13 +53,13 @@ class GetCallbackRequestModel(sessionManager: SessionManager) : CallbackRequestM
 {
     @NotBlank(message = "validation.error.request-id-not-found")
     private val _requestId: String? = sessionManager.get(REQUEST_ID_SESSION_KEY)?.value?.toString()
-    
+
     @NotBlank(message = "validation.error.username-not-found")
     private val _username: String? = sessionManager.get(USER_ID_SESSION_KEY)?.value?.toString()
-    
+
     val requestId: String
         get() = _requestId ?: throw IllegalStateException("request id is null and was not expected to be")
-    
+
     val username: String
         get() = _username ?: throw IllegalStateException("username is null and was not expected to be")
 }
@@ -134,7 +134,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
             "telia",
             "unique-id"
     )
-    
+
     init
     {
         synchronized(this)
@@ -145,18 +145,18 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
             }
         }
     }
-    
+
     companion object
     {
         private const val ASSERTING_PARTY_DN = "asserting.party.certificate.subject.dn"
         private const val NON_PROD_DN = "CN=test.signicat.com/std, OU=Signicat, O=Signicat, L=Trondheim, ST=Norway, C=NO"
         private const val PROD_DN = "CN=id.signicat.com/std, OU=Signicat, O=Signicat, L=Trondheim, ST=Norway, C=NO"
     }
-    
+
     override fun preProcess(request: Request, response: Response): CallbackRequestModel = if (request.isGetRequest)
         GetCallbackRequestModel(sessionManager) else
         PostCallbackRequestModel(request)
-    
+
     /**
      * Handles a callback that used signing.
      */
@@ -169,7 +169,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
                 // and should never happen.
                 .orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.PLUGIN_ERROR) }
                 .secret
-    
+
         val request = with(GetStatusRequest())
         {
             password = secret
@@ -177,16 +177,16 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
             requestId.add(requestModel.requestId)
             this
         }
-        
+
         val taskStatusInfo = client.getStatus(request)
-        
+
         return if (taskStatusInfo.taskStatusInfo.size > 0 &&
                 taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED.value())
             Optional.of(AuthenticationResult(requestModel.username))
         else
             Optional.empty()
     }
-    
+
     /**
      * Handle a callback that used authentication.
      */
@@ -196,7 +196,7 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         val configuration = Properties()
 
         configuration.setProperty("debug", "${!isProd}") // Only enable debug in non-prod
-    
+
         if (isProd)
         {
             configuration.setProperty(ASSERTING_PARTY_DN, PROD_DN)
@@ -204,22 +204,14 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
         else
         {
             logger.trace("SAML response from Signicat: {}", requestModel.samlResponse)
-            
+
             configuration.setProperty(ASSERTING_PARTY_DN, NON_PROD_DN)
         }
-        
+
         val samlFacade = SamlFacade(configuration)
 
         signerTrustCryptoStore.ifPresent { store ->
-            val stream = ByteArrayOutputStream()
-
-            ObjectOutputStream(stream).use { out ->
-                out.writeObject(store.asKeyStore)
-            }
-
-            val bytes = stream.toByteArray()
-            
-            samlFacade.setSamlKeystore(bytes)
+            samlFacade.setSamlKeystore(store.convertToJksByteArray())
             samlFacade.context.configuration.setProperty(CONFIG_PARAMETER_TRUSTKEYSTORE_PASSWORD,
                     store.keyStorePassword.joinToString(""))
         }
@@ -234,21 +226,21 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
 
         val subjectAttributes = mutableListOf<Attribute>()
         val contextAttributes = mutableListOf<Attribute>()
-        
+
         for (attribute in samlResponseData.attributes)
         {
             val attributes = if (allSubjectAttributeNames.contains(attribute.name))
                 subjectAttributes else contextAttributes
-            
+
             val attributeName = if (attribute.name.contains('.'))
                 AttributeName.of(attribute.name, "period-delimited") else AttributeName.of(attribute.name)
-            
+
             val attributeValue = if (attribute.valueList.size == 1)
                 AttributeValue.of(attribute.value) else AttributeValue.of(attribute.valueList)
-            
+
             attributes.add(Attribute.of(attributeName, attributeValue))
         }
-        
+
         return Optional.of(
                 AuthenticationResult(
                         AuthenticationAttributes.of(

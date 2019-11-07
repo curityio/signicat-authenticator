@@ -18,6 +18,9 @@ package io.curity.identityserver.plugin.signicat.authentication
 
 import io.curity.identityserver.plugin.signicat.config.PredefinedEnvironment
 import io.curity.identityserver.plugin.signicat.config.SignicatAuthenticatorPluginConfig
+import se.curity.identityserver.sdk.service.crypto.SignerTrustCryptoStore
+import java.io.ByteArrayOutputStream
+import java.security.KeyStore
 
 internal val REQUEST_ID_SESSION_KEY = "REQUEST_ID_SESSION_KEY"
 internal val USER_ID_SESSION_KEY = "USER_ID_SESSION_KEY"
@@ -36,3 +39,36 @@ internal fun withEnvironment(config: SignicatAuthenticatorPluginConfig): String 
                 }
             }.orElseThrow { throw IllegalStateException("Custom environment was not configured") }
         }
+
+/**
+ * Signicat expects to be able to load the signre truststore as a JKS keystore specifically, so this function must be
+ * called to make sure the [Keystore] provided to [com.signicat.services.client.saml.SamlFacade#setSamlKeystore] does
+ * not cause any errors.
+ *
+ * Only the original keystore's certificate is added to the return [KeyStore]'s byte array.
+ */
+internal fun SignerTrustCryptoStore.convertToJksByteArray(): ByteArray
+{
+    val jks = convertToJks()
+    val stream = ByteArrayOutputStream()
+    jks.store(stream, keyStorePassword)
+    return stream.toByteArray()
+}
+
+/**
+ * Convert a generic signer trustKeyStore to a JKS.
+ *
+ * Only the original keystore's certificate is included in the returned [KeyStore].
+ */
+internal fun SignerTrustCryptoStore.convertToJks(): KeyStore
+{
+    val keyStore = asKeyStore
+    if (keyStore.type == "jks") return keyStore
+
+    val stream = ByteArrayOutputStream()
+    keyStore.store(stream, keyStorePassword)
+    val newStore = KeyStore.getInstance("jks")
+    newStore.load(null, keyStorePassword)
+    newStore.setCertificateEntry(keyStoreAlias, certificate)
+    return newStore
+}
