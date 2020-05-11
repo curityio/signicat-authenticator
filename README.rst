@@ -1,8 +1,11 @@
 Signicat Authenticator Plug-in
 ==============================
  
-.. image:: https://travis-ci.org/curityio/signicat-authenticator.svg?branch=master
-    :target: https://travis-ci.org/curityio/signicat-authenticator
+.. image:: https://curity.io/assets/images/badges/signicat-authenticator-quality.svg
+       :target: https://curity.io/resources/code-examples/status/
+       
+.. image:: https://curity.io/assets/images/badges/signicat-authenticator-availability.svg
+       :target: https://curity.io/resources/code-examples/status/
 
 An authenticator that uses the Signicat login and signing services to do authentication.
 
