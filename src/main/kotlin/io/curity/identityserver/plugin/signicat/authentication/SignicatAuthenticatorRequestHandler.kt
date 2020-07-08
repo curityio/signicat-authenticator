@@ -42,6 +42,7 @@ import se.curity.identityserver.sdk.web.Response.ResponseModelScope.NOT_FAILURE
 import se.curity.identityserver.sdk.web.ResponseModel.templateResponseModel
 import java.net.URL
 import java.net.URLEncoder
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.Collections.emptyMap
 import java.util.Collections.singletonMap
@@ -154,12 +155,14 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
     {
         val taskId = "task_1"
         val request = with(CreateRequestRequest()) {
-            service = serviceName
-            password = useSigning
+            val signingConfiguration = useSigning
                     // For this to throw, the presence of useSigning wasn't checked before. This is a logic error
                     // and should never happen.
                     .orElseThrow { throw exceptionFactory.internalServerException(ErrorCode.PLUGIN_ERROR) }
-                    .secret
+
+            service = serviceName
+            password = signingConfiguration.secret
+
             request += with(com.signicat.document.v3.Request()) {
                 val authUrl = authenticatorInformationProvider.fullyQualifiedAuthenticationUri
                 clientReference = authUrl.path.reversed().split("/").first().reversed() // Authenticator ID
@@ -180,9 +183,9 @@ class SignicatAuthenticatorRequestHandler(config: SignicatAuthenticatorPluginCon
                     documentAction += with(DocumentAction()) {
                         type = DocumentActionType.SIGN
                         document = with(ProvidedDocument()) {
-                            data = URLEncoder.encode("Login", StandardCharsets.UTF_8.name()).toByteArray()
+                            data = signingConfiguration.toBeSigned.toByteArray(StandardCharsets.UTF_8)
                             id = "document_1"
-                            description = "Login"
+                            description = signingConfiguration.signingDescription
                             mimeType = "text/plain"
                             this
                         }
