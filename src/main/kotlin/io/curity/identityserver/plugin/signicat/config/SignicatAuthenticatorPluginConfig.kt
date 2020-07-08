@@ -60,14 +60,22 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     @get:Description("The name of the graphics profile that should be used at Signicat")
     val graphicsProfile: Optional<String>
     
-    @get:Description("Whether or not authentication should be obtained by signing")
+    @get:Description("Whether or not to send a text that should be signed by authenticating")
     val useSigning: Optional<UseSigning>
     
     interface UseSigning
     {
         @get:Description("The client secret used to authenticate to the Signicat signing service")
         val secret : String
-    
+
+        @get:Description("The text that should be presented to the user for signing")
+        @get:DefaultString("Authenticate to sign this text")
+        val toBeSigned: String
+
+        @get:Description("The title of the signing page that Signicat should show")
+        @get:DefaultString("Authenticate to sign")
+        val signingDescription: String
+
         val clientKeyCryptoStore: Optional<ClientKeyCryptoStore>
     }
     
