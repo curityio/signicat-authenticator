@@ -82,9 +82,12 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val sessionManager : SessionManager
     
     val authenticatorInformationProvider: AuthenticatorInformationProvider
-    
+
+    @get:Description("The trust store used for communicating with the Signicat backend.")
     val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
 
+    @get:Description("The trust store used to verify the SAML response from Signicat. Not used when 'Use Signing' is " +
+            "enabled.")
     val signerTrustCryptoStore: Optional<SignerTrustCryptoStore>
 }
 
