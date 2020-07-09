@@ -20,8 +20,13 @@ Requirements for Building from Source
 """""""""""""""""""""""""""""""""""""
 
 The source code is written entirely in `Kotlin <http://kotlinlang.org/>`_. It can be compiled using Maven 3.
-For this to succeed, however, the `Signicat Connector for Java`_ needs to be installed into a Maven repository which is accessible during compilation.
-A stub implementation of that library is available under the ``java-connector/`` directory. Run ``mvn -f java-connector/pom.xml install`` to install the stub JAR in the local Maven repository. Refer to the `Maven guide for information about installing third-party JARs <https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html>`_. Once the Signicat Connector's JARs are installed, the project can be compiled from a shell by issuing a command like this: ``mvn package``.
+For this to succeed, however, the `Signicat Connector for Java`_ and Signicat custom OpenSAML library needs to be installed into a Maven repository which is accessible during compilation.
+To install these, download the jar-files to current directory and run the following commands:
+
+.. code:: bash
+
+   mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=signicat-opensaml-1.1-PATCH-6.jar
+   mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=signicat-client-lib-4.0.1.jar
 
 Installation
 ~~~~~~~~~~~~
