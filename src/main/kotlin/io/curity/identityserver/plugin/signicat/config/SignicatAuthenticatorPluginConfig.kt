@@ -56,7 +56,7 @@ interface SignicatAuthenticatorPluginConfig : Configuration
         
         val customEnvironment : Optional<String>
     }
-    
+
     @get:Description("The name of the graphics profile that should be used at Signicat")
     val graphicsProfile: Optional<String>
     
@@ -83,11 +83,8 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     
     val authenticatorInformationProvider: AuthenticatorInformationProvider
 
-    @get:Description("The trust store used for communicating with the Signicat backend.")
     val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
 
-    @get:Description("The trust store used to verify the SAML response from Signicat. Not used when 'Use Signing' is " +
-            "enabled.")
     val signerTrustCryptoStore: Optional<SignerTrustCryptoStore>
 }
 
