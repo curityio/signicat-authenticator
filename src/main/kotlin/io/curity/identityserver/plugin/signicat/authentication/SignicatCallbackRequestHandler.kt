@@ -182,7 +182,12 @@ class SignicatCallbackRequestHandler(config : SignicatAuthenticatorPluginConfig)
 
         return if (taskStatusInfo.taskStatusInfo.size > 0 &&
                 taskStatusInfo.taskStatusInfo[0].taskStatus == TaskStatus.COMPLETED.value())
-            Optional.of(AuthenticationResult(requestModel.username))
+            Optional.of(
+                    AuthenticationResult(
+                            AuthenticationAttributes.of(
+                                    SubjectAttributes.of(requestModel.username,
+                                            Attributes.of("request_id", requestModel.requestId)),
+                                    ContextAttributes.empty())))
         else
             Optional.empty()
     }
