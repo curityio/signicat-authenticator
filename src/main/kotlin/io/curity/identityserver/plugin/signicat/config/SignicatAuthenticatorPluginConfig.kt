@@ -56,7 +56,7 @@ interface SignicatAuthenticatorPluginConfig : Configuration
         
         val customEnvironment : Optional<String>
     }
-    
+
     @get:Description("The name of the graphics profile that should be used at Signicat")
     val graphicsProfile: Optional<String>
     
@@ -82,7 +82,7 @@ interface SignicatAuthenticatorPluginConfig : Configuration
     val sessionManager : SessionManager
     
     val authenticatorInformationProvider: AuthenticatorInformationProvider
-    
+
     val serverTrustCryptoStore: Optional<ServerTrustCryptoStore>
 
     val signerTrustCryptoStore: Optional<SignerTrustCryptoStore>
