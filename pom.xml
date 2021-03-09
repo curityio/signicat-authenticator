@@ -215,7 +215,7 @@
         <dependency>
             <groupId>com.signicat.services.client</groupId>
             <artifactId>signicat-client-lib</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
         </dependency>
 
         <dependency>
@@ -232,4 +232,11 @@
         </dependency>
 
     </dependencies>
+    <repositories>
+        <repository>
+            <id>eclipse</id>
+            <name>Eclipse Maven Repository</name>
+            <url>https://download.eclipse.org/rt/eclipselink/maven.repo/</url>
+        </repository>
+    </repositories>
 </project>

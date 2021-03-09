@@ -27,14 +27,14 @@ To install these, download the jar-files to current directory and run the follow
 .. code:: bash
 
    mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=signicat-opensaml-1.1-PATCH-6.jar
-   mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=signicat-client-lib-4.0.1.jar
+   mvn org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file -Dfile=signicat-client-lib-4.0.2.jar
 
 Installation
 ~~~~~~~~~~~~
 
 To install this plug-in, either download a binary version available from the `releases section of this project's GitHub repository <https://github.com/curityio/signicat-authenticator/releases>`_ or compile it from source (as described above). If you compiled the plug-in from source, the package will be placed in the ``target/libs`` subdirectory. The resulting JAR file or the one downloaded from GitHub needs to placed in the directory ``${IDSVR_HOME}/usr/share/plugins/signicat``. (The name of the last directory, ``signicat``, which is the plug-in group, is arbitrary and can be anything.) All of the dependent JAR files must be placed in this directory as well. These include:
 
-* signicat-client-lib-4.0.1.jar
+* signicat-client-lib-4.0.2.jar
 * signicat-opensaml-1.1-PATCH-6.jar
 * commons-codec-1.10.jar
 * commons-logging-1.2.jar
